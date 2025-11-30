@@ -1,0 +1,82 @@
+import { Hono } from 'hono';
+import { html } from 'hono/html';
+import { Database } from 'bun:sqlite';
+
+const app = new Hono();
+const db = new Database('proto.sqlite');
+
+// *I assume this is a standard SQ command; why is it so ugly? Meaning, like, my understanding is to avoid writing code as strings and such practices.*
+db.run("CREATE TABLE IF NOT EXISTS clicks (id INTEGER PRIMARY KEY, timestamp TEXT)");
+
+// We inject the HTMX script from a CDN for the prototype.
+// *What do you mean? CDN - content delivery network, right? But why would we inject an external script?*
+const Layout = (props: { children: any }) => html`
+<!DOCTYPE html>
+    <html>
+        <head>
+        <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-900 text-white p-10 font-mono">
+        <h1 class="text-2xl mb-4">Basement Prototype</h1>
+        ${props.children}
+        </body>
+    </html>
+`; // *I recognize this as standard HTML stuff; could you explain the why behind line 13? As a way to get familiar with this; I would guess it's from... TypeScript? Or custom procedure from Bun?*
+
+app.get('/', (c) => {
+    const count = db.query("SELECT COUNT(*) as count FROM clicks").get() as any; // *I see that these commands are the simple kind for SQ databases, though it still surprises me that we're hard coding code. Is this common in live products? I would assume it's just quick and dirty for the prototype, no problem there though.*
+
+    return c.html( // "c" is quite ambiguous; again, just figuring out what's convention, what's shorthand, etc.
+        <Layout>
+            <div id="activity-log" class="mb-4 text-green-400">
+                System Active. Total Clicks: {count.count}
+            </div>
+
+            {/* THE TRIGGER */}
+            {/* hx-post: Send POST request to /click */}
+            {/* hx-swap: Replace the 'outerHTML' of this button with the response */}
+            <button
+                hx-post="/click"
+                hx-swap="outerHTML"
+                class="border border-white px-4 py-2 hover:bg-white hover:text-black transition"
+            >
+                Initialize Sequence
+            </button>
+        </Layout> // *Could you explain hx-post & hx-swap? I would guess these are fancy components which allow us to modify HTML in a way that, perhaps, wasn't possible in 2005 or smth.*
+    );
+});
+
+// POST /click -> The Event Handler
+app.post('/click', (c) => {
+    // 1. Logic: Write to DB
+    db.run("INSERT INTO clicks (timestamp) VALUES (?)", [new Date().toISOString()]);
+
+    // 2. Logic: Get the specific new entry AND the total count
+    const lastEntry = db.query("SELECT * FROM clicks ORDER BY id DESC LIMIT 1").get() as any;
+    const count = db.query("SELECT COUNT(*) as count FROM clicks").get() as any;
+
+    // 3. View: Return TWO things:
+    //    A. The Button (Standard replacement)
+    //    B. The Log (Out-of-Band replacement)
+    return c.html(
+        <>
+            <button
+                hx-post="/click"
+                hx-swap="outerHTML"
+                class="border border-green-500 text-green-500 px-4 py-2"
+            >
+                Sequence recorded at {lastEntry.timestamp}
+            </button>
+
+        {/*
+            This div has the SAME ID as the one in the Layout.
+            hx-swap-oob="true" tells HTMX: "Don't put this inside the button.
+            Find the ID 'activity-log' somewhere else on the page and replace it."
+        */}
+            <div id="activity-log" hx-swap-oob="true" class="mb-4 text-green-400">
+                System Active. Total Clicks: {count.count}
+            </div>
+        </>
+    );
+});

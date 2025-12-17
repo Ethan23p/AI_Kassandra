@@ -1,4 +1,4 @@
-# ai_kassandra
+# AI_Kassandra
 
 To install dependencies:
 

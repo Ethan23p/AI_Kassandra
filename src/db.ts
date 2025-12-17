@@ -4,16 +4,47 @@ import { Database } from 'bun:sqlite';
 // Initialize the file
 export const db = new Database('proto.sqlite');
 
-// Create the table immediately when this file is loaded
-db.run("CREATE TABLE IF NOT EXISTS clicks (id INTEGER PRIMARY KEY, timestamp TEXT)");
+// Create tables
+db.run(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    email TEXT UNIQUE,
+    password TEXT, -- Keeping for simple dev/shared password compatibility if needed, though mostly moving to token/magic link
+    auth_provider TEXT DEFAULT 'dev', -- 'dev', 'email'
+    magic_token TEXT,
+    token_expires_at TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
-// Helper to get the current count (Utility function)
-export function getClickStats() {
-    const count = db.query("SELECT COUNT(*) as count FROM clicks").get() as any;
-    return count.count;
-}
+db.run(`
+  CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    text TEXT,
+    type TEXT, -- e.g. 'radio', 'text'
+    options TEXT -- JSON string of options e.g. ["Yes", "No"]
+  )
+`);
 
-// Helper to get the last entry
-export function getLastClick() {
-    return db.query("SELECT * FROM clicks ORDER BY id DESC LIMIT 1").get() as any;
-}
+db.run(`
+  CREATE TABLE IF NOT EXISTS answers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    question_id INTEGER,
+    value TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(question_id) REFERENCES questions(id)
+  )
+`);
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS guidance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    content TEXT,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )
+`);

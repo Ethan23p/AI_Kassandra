@@ -14,6 +14,7 @@ db.run(`
     auth_provider TEXT DEFAULT 'dev', -- 'dev', 'email'
     magic_token TEXT,
     token_expires_at TEXT,
+    subscribed_to_weekly INTEGER DEFAULT 0, -- 0 = No, 1 = Yes
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   )
 `);

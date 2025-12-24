@@ -3,9 +3,10 @@ import { db } from "./db";
 // User Operations
 export interface User {
     id: number;
-    username: string;
+    username?: string;
     email?: string;
-    auth_provider: string; // 'dev' or 'email'
+    auth_provider: string; // 'dev', 'email', or 'anonymous'
+    subscribed_to_weekly: number;
     created_at: string;
 }
 
@@ -31,16 +32,31 @@ export interface Guidance {
     created_at: string;
 }
 
-// User Operations
 export function createUser(username: string, email?: string): User {
     if (email) {
-        const query = db.query("INSERT INTO users (username, email, auth_provider) VALUES ($username, $email, 'email') RETURNING *");
-        return query.get({ $username: username, $email: email }) as User;
+        db.query("INSERT INTO users (username, email, auth_provider) VALUES ($username, $email, 'email')").run({ $username: username, $email: email });
+        return db.query("SELECT * FROM users WHERE email = $email").get({ $email: email }) as User;
     } else {
-        const query = db.query("INSERT INTO users (username, auth_provider) VALUES ($username, 'dev') RETURNING *");
-        return query.get({ $username: username }) as User;
+        db.query("INSERT INTO users (username, auth_provider) VALUES ($username, 'dev')").run({ $username: username });
+        return db.query("SELECT * FROM users WHERE username = $username").get({ $username: username }) as User;
     }
 }
+
+export function createAnonymousUser(): User {
+    const res = db.query("INSERT INTO users (auth_provider) VALUES ('anonymous') RETURNING id").get({}) as { id: number };
+    return getUser(res.id)!;
+}
+
+export function updateUserToPermanent(id: number, email: string, username: string, subscribedToWeekly: boolean = false): User {
+    db.query(`
+        UPDATE users
+        SET email = $email, username = $username, auth_provider = 'email', subscribed_to_weekly = $subscribed
+        WHERE id = $id
+    `).run({ $email: email, $username: username, $id: id, $subscribed: subscribedToWeekly ? 1 : 0 });
+
+    return getUser(id)!;
+}
+
 
 export function getUserByUsername(username: string): User | null {
     const query = db.query("SELECT * FROM users WHERE username = $username");

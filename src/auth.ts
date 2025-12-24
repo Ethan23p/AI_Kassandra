@@ -41,10 +41,9 @@ export class AuthService {
     }
 
     static setSession(c: Context, user: models.User) {
-        // In real app, sign a JWT. For now, store ID.
         setCookie(c, AUTH_COOKIE_NAME, user.id.toString(), {
             path: '/',
-            secure: true,
+            secure: false, // Set to true if on HTTPS, false for local dev/wsltunnel
             httpOnly: true,
             maxAge: 60 * 60 * 24 * 7,
         });
@@ -57,23 +56,39 @@ export class AuthService {
         if (isNaN(id)) return null;
         return models.getUser(id);
     }
+
+    /**
+     * Ensures the visitor has a user record (anonymous if needed).
+     * Used for the onboarding flow.
+     */
+    static async ensureSession(c: Context): Promise<models.User> {
+        let user = this.getSessionUser(c);
+        if (!user) {
+            user = models.createAnonymousUser();
+            this.setSession(c, user);
+        }
+        return user;
+    }
 }
 
 // --- MIDDLEWARE ---
 
 export async function authMiddleware(c: Context, next: Next) {
     // Public Routes
-    const publicPaths = ['/login', '/auth', '/about', '/public'];
-    if (publicPaths.some(p => c.req.path.startsWith(p))) {
+    const publicPaths = ['/login', '/auth', '/about', '/public', '/start', '/'];
+
+    // Exact match for '/' should be public (Landing)
+    if (c.req.path === '/' || publicPaths.some(p => p !== '/' && c.req.path.startsWith(p))) {
         await next();
         return;
     }
 
     const user = AuthService.getSessionUser(c);
-    if (!user) {
+    if (!user || user.auth_provider === 'anonymous') {
+        // If they are anonymous and trying to access /profile or /dashboard,
+        // we might want a different redirect or just login
         return c.redirect('/login');
     }
 
-    // Attach user to context if needed, or just rely on getSessionUser in routes
     await next();
 }

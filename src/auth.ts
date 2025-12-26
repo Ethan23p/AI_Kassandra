@@ -54,7 +54,11 @@ export class AuthService {
         if (!cookie) return null;
         const id = parseInt(cookie);
         if (isNaN(id)) return null;
-        return models.getUser(id);
+        const user = models.getUser(id);
+        if (user) {
+            models.updateUserActivity(user.id);
+        }
+        return user;
     }
 
     /**

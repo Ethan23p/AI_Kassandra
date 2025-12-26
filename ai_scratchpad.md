@@ -48,3 +48,34 @@
 		- simple registration
 			- registers user with email address - just magic link email sign in would be great, just social media login would be great
 		- prompt user: weekly guidance to email? y/n
+
+## Technical Outline
+
+### 1. Data & Persistence (`src/db.ts`, `src/models.ts`)
+- **Schema**: Tables for `users` (id, email, auth_provider, subscribed_to_weekly), `questions` (text, options as JSON), `answers`, and `guidance`.
+- **Functions**:
+  - `createAnonymousUser()`: Initializes a session for a new visitor.
+  - `updateUserToPermanent(id, email, username, subscribe)`: Converts an anonymous record into a registered account.
+  - `saveAnswer(userId, questionId, value)`: Upserts user responses.
+  - `getQuestions()` / `getAnswers(userId)`: Retrieval logic.
+  - `createGuidance(userId, content)` / `getLatestGuidance(userId)`: Persisting AI output.
+
+### 2. Authentication & Sessions (`src/auth.ts`)
+- **`AuthService`**:
+  - `ensureSession(context)`: Guarantees a user ID exists (creates anonymous if needed).
+  - `getSessionUser(context)`: Retrieves user object from cookie.
+  - `login(email)`: Strategy-based entry (currently `DevAuthStrategy` for playtesters).
+- **`authMiddleware`**: Protects `/dashboard`, `/profile`, etc. while exempting onboarding routes (`/`, `/about`, `/start`).
+
+### 3. Service Interfaces (`src/interfaces/`)
+- **Profile Interface**: `buildContext(userId)` - Aggregates data into `AiAgentContext` for the AI.
+- **AI Interface**: `generateGuidance(context)` - The "Oracle" engine (currently shallow mock).
+- **Communication Interface**: `sendGuidance(email, content)` - Messaging abstraction (currently console logs).
+
+### 4. Application Flow (`src/index.tsx`, `src/views.tsx`)
+- **Routes**:
+  - `GET /`: Landing Page.
+  - `GET /start`: Initializes session and sends to questions.
+  - `POST /submit-answers`: Runs the pipeline (context -> guidance) and redirects to `/register` if anonymous.
+  - `POST /register`: Handover from anonymous to permanent.
+- **Views**: Aesthetic Hono/JSX components using Tailwind CSS for a premium "Playtester" vibe.

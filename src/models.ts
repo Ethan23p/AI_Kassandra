@@ -5,8 +5,10 @@ export interface User {
     id: number;
     username?: string;
     email?: string;
-    auth_provider: string; // 'dev', 'email', or 'anonymous'
+    auth_provider: string;
     subscribed_to_weekly: number;
+    is_anonymous: number;
+    last_active_at: string;
     created_at: string;
 }
 
@@ -33,28 +35,48 @@ export interface Guidance {
 }
 
 export function createUser(username: string, email?: string): User {
-    if (email) {
-        db.query("INSERT INTO users (username, email, auth_provider) VALUES ($username, $email, 'email')").run({ $username: username, $email: email });
-        return db.query("SELECT * FROM users WHERE email = $email").get({ $email: email }) as User;
+    const normalizedEmail = email?.toLowerCase().trim();
+    if (normalizedEmail) {
+        db.query("INSERT INTO users (username, email, auth_provider, is_anonymous) VALUES ($username, $email, 'email', 0)").run({ $username: username, $email: normalizedEmail });
+        return db.query("SELECT * FROM users WHERE email = $email").get({ $email: normalizedEmail }) as User;
     } else {
-        db.query("INSERT INTO users (username, auth_provider) VALUES ($username, 'dev')").run({ $username: username });
+        db.query("INSERT INTO users (username, auth_provider, is_anonymous) VALUES ($username, 'dev', 0)").run({ $username: username });
         return db.query("SELECT * FROM users WHERE username = $username").get({ $username: username }) as User;
     }
 }
 
 export function createAnonymousUser(): User {
-    const res = db.query("INSERT INTO users (auth_provider) VALUES ('anonymous') RETURNING id").get({}) as { id: number };
+    const res = db.query("INSERT INTO users (auth_provider, is_anonymous) VALUES ('anonymous', 1) RETURNING id").get({}) as { id: number };
     return getUser(res.id)!;
 }
 
 export function updateUserToPermanent(id: number, email: string, username: string, subscribedToWeekly: boolean = false): User {
+    const normalizedEmail = email.toLowerCase().trim();
     db.query(`
         UPDATE users
-        SET email = $email, username = $username, auth_provider = 'email', subscribed_to_weekly = $subscribed
+        SET email = $email, username = $username, auth_provider = 'email', subscribed_to_weekly = $subscribed, is_anonymous = 0
         WHERE id = $id
-    `).run({ $email: email, $username: username, $id: id, $subscribed: subscribedToWeekly ? 1 : 0 });
+    `).run({ $email: normalizedEmail, $username: username, $id: id, $subscribed: subscribedToWeekly ? 1 : 0 });
 
     return getUser(id)!;
+}
+
+export function updateUserActivity(id: number) {
+    db.query("UPDATE users SET last_active_at = CURRENT_TIMESTAMP WHERE id = $id").run({ $id: id });
+}
+
+/**
+ * Deletes anonymous users who have been inactive and have no answers/guidance.
+ * @param hours Inactivity threshold in hours
+ */
+export function purgeAbandonedUsers(hours: number = 24) {
+    db.run(`
+        DELETE FROM users
+        WHERE is_anonymous = 1
+        AND datetime(last_active_at) <= datetime('now', '-${hours} hours')
+        AND id NOT IN (SELECT DISTINCT user_id FROM answers)
+        AND id NOT IN (SELECT DISTINCT user_id FROM guidance)
+    `);
 }
 
 
@@ -64,8 +86,9 @@ export function getUserByUsername(username: string): User | null {
 }
 
 export function getUserByEmail(email: string): User | null {
+    const normalizedEmail = email.toLowerCase().trim();
     const query = db.query("SELECT * FROM users WHERE email = $email");
-    return query.get({ $email: email }) as User | null;
+    return query.get({ $email: normalizedEmail }) as User | null;
 }
 
 export function getUser(id: number): User | null {

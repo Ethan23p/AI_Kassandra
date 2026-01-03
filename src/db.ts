@@ -11,6 +11,7 @@ export const initDB = () => {
     db.run(`
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
+            username TEXT UNIQUE,
             email TEXT,
             status TEXT NOT NULL,
             created_at INTEGER NOT NULL,
@@ -95,7 +96,8 @@ export const seedDatabase = () => {
                 { text: 'The advice of those I trust.', metadata: 'social' },
                 { text: 'A toss of the coin; chance defines my path.', metadata: 'spontaneous' }
             ]
-        },
+        }
+        /* Hidden for debugging efficiency
         {
             category: 'personality',
             text: 'In a group setting, what role do you naturally fall into?',
@@ -126,6 +128,7 @@ export const seedDatabase = () => {
                 { text: 'Being surrounded by the beauty of nature.', metadata: 'nature_lover' }
             ]
         }
+        */
     ]
 
     const insertQuestion = db.prepare('INSERT INTO questions (category, text) VALUES (?1, ?2) RETURNING id')
@@ -181,9 +184,39 @@ export const findUserById = (userId: string) => {
     return db.query('SELECT * FROM users WHERE id = ?').get(userId) as any | null
 }
 
-export const createUser = (userId: string, email?: string) => {
+export const findUserByUsername = (username: string) => {
+    return db.query('SELECT * FROM users WHERE username = ?').get(username) as any | null
+}
+
+export const createUser = (userId: string, username?: string, email?: string) => {
     db.run(`
-        INSERT INTO users (id, email, status, created_at)
+        INSERT INTO users (id, username, email, status, created_at)
+        VALUES (?1, ?2, ?3, ?4, ?5)
+    `, [userId, username || null, email || null, 'anonymous', Date.now()])
+}
+
+export const findDailyGuidanceForUser = (userId: string) => {
+    const oneDayAgo = Date.now() - (24 * 60 * 60 * 1000)
+    return db.query(`
+        SELECT * FROM guidances
+        WHERE user_id = ?
+        AND is_daily = 1
+        AND generated_at > ?
+        ORDER BY generated_at DESC
+        LIMIT 1
+    `).get(userId, oneDayAgo) as any | null
+}
+
+export const saveGuidance = (userId: string, text: string, isDaily: boolean) => {
+    db.run(`
+        INSERT INTO guidances (user_id, text, generated_at, is_daily)
         VALUES (?1, ?2, ?3, ?4)
-    `, [userId, email || null, 'anonymous', Date.now()])
+    `, [userId, text, Date.now(), isDaily ? 1 : 0])
+}
+
+export const clearUserProgress = (userId: string) => {
+    db.transaction(() => {
+        db.run('DELETE FROM answers WHERE user_id = ?', [userId])
+        db.run('DELETE FROM guidances WHERE user_id = ?', [userId])
+    })()
 }

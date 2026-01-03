@@ -56,14 +56,14 @@
 			  type Question = {
 			  readonly id: number;
 			  category: QuestionCategory;
-			  text: string;               // e.g., "How do you handle chaos?"
+			  text: string;
 			  options: Choice[];          // Arbitrary number of choices
 			  };
 
 			  type Choice = {
 			  readonly id: number;
 			  questionId: number;
-			  text: string;               // e.g., "I embrace it"
+			  text: string;
 			  metadata?: string;            // Metadata for the AI (e.g., "high_openness")
 			  };
 			  ```
@@ -112,8 +112,20 @@
 				- Hopefully that single guidance convinces them to go premium; at the end, along with the guidance, the user is prompted:
 					- GOOD: "By answering more questions, our system can provide even more insightful guidance. Would you like to receive a guidance like this every morning for $2 a month?"
 					- OKAY: "Would you like to receive a guidance like this every morning and increase the systems understanding of you, for $2 a month?"
-	- ### Nature of *Insight Items*
+	- ### Nature of *Guidances (items of insight)*
 	  AI_Kassandra/nature of insight items
+		- In the prototype stage we can use very simplified models, like "The Big Two":
+			- **1. Stability (Alpha)** - Combines emotional stability, agreeableness, and conscientiousness. Reflects self-regulation and getting along with others.
+			  **2. Plasticity (Beta)** - Combines extraversion and openness to experience. Reflects engagement with the world and exploring new things.
+		- user questions / user responses
+			- The questions will be measuring user agreement (1-4) with a given statement;
+				- question:
+					- This indicates high/low stability/plasticity; are you like this?
+				- Responses:
+					- 1 - strongly disagree
+					- 2 - disagree
+					- 3 - agree
+					- 4 - strongly agree
 	- ### User Experience
 		- walkthrough:
 			- User: "Lol, this should be good. Like astrology but with AI."

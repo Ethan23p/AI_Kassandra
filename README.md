@@ -13,8 +13,8 @@
 			- minimally functional UI
 				- DONE multiple pages
 				- DONE straightforward forms
-			- user identity
-			- gather user data
+			- DONE user identity
+			- gather user data, build a useful profile
 			- generate guidances
 				- from:
 					- user profile

@@ -1,0 +1,170 @@
+[
+    {
+        "id": 1,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "When someone cuts me off in traffic, I assume they're rushing to the hospital rather than plotting against me specifically",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 2,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "I have been described as 'chill' by at least one mammal",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 3,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "My first instinct when receiving critical feedback is NOT to fake my own death and move to Argentina",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 4,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "I can be in a room with dishes in the sink without my soul leaving my body",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 5,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "When plans fall through, I adapt rather than spiraling into an existential crisis about the fundamental unreliability of the universe",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 6,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "People trust me with their secrets, plants, and/or pets",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 7,
+        "category": "big_2",
+        "trait": "stability",
+        "text": "I finish things I start, even when they stop being fun (like this quiz)",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 8,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "I would describe my weekend plans as 'TBD' more often than 'the same thing I do every weekend'",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 9,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "I have opinions about experimental music/food/art that I didn't have to have",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 10,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "The phrase 'let's try something new' excites rather than terrifies me",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 11,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "I talk to strangers without requiring three drinks first",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 12,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "My browser currently has more than 20 tabs open about random things I got curious about",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 13,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "I own at least one item of clothing/decor that makes conservative relatives nervous",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    },
+    {
+        "id": 14,
+        "category": "big_2",
+        "trait": "plasticity",
+        "text": "Staying home alone all weekend sounds like a punishment rather than a reward",
+        "options": [
+            "Strongly Disagree",
+            "Disagree",
+            "Agree",
+            "Strongly Agree"
+        ]
+    }
+]

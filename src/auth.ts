@@ -3,25 +3,18 @@ import { getCookie, setCookie } from 'hono/cookie'
 import { findUserById, createUser } from './db'
 
 export const authMiddleware = async (c: Context, next: Next) => {
-    let userId = getCookie(c, 'user_session')
+    const userId = getCookie(c, 'user_session')
 
-    if (!userId) {
-        const newId = crypto.randomUUID()
-        createUser(newId)
-        setCookie(c, 'user_session', newId, {
-            path: '/',
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 365, // 1 year
-        })
-        userId = newId
-    } else {
+    if (userId) {
         // Verify user exists in DB
         const user = findUserById(userId)
-        if (!user) {
-            createUser(userId)
+        if (user) {
+            c.set('userId', userId)
+        } else {
+            // Cookie exists but user doesn't (maybe DB reset)
+            // We should probably clear the dead cookie or just let the app handle it
         }
     }
 
-    c.set('userId', userId)
     await next()
 }

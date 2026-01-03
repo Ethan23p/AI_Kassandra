@@ -21,8 +21,9 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
+    padding: 2rem 1rem;
 }
 
 h1,
@@ -42,6 +43,17 @@ h3 {
 
 header {
     margin-bottom: 3rem;
+    text-align: center;
+}
+
+header a {
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+header a:hover {
+    transform: scale(1.02);
 }
 
 h1 {
@@ -51,6 +63,7 @@ h1 {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
 }
 
 .subtitle {
@@ -120,4 +133,105 @@ footer {
     margin-top: 4rem;
     font-size: 0.9rem;
     opacity: 0.5;
+}
+
+/* Animations */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+}
+
+.pulse {
+    animation: pulse 2s infinite ease-in-out;
+}
+
+/* Guidance Refinements */
+.guidance-card h2 {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+}
+
+.guidance-text {
+    font-size: 1.25rem;
+    font-style: italic;
+    line-height: 1.8;
+    color: #f1f5f9;
+    margin-bottom: 2rem;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.guidance-text::before {
+    content: '"';
+    position: absolute;
+    left: -1rem;
+    top: -1rem;
+    font-size: 4rem;
+    opacity: 0.1;
+    font-family: serif;
+}
+
+.upsell {
+    border-top: 1px solid var(--glass-border);
+    padding-top: 2rem;
+    margin-top: 1rem;
+}
+
+.upsell p {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin-bottom: 1.5rem;
+}
+
+.generating-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.loader-bar {
+    width: 200px;
+    height: 4px;
+    background: var(--glass-border);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loader-progress {
+    width: 50%;
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    animation: shimmer 1.5s infinite linear;
 }

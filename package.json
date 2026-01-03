@@ -13,6 +13,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "hono": "^4.10.7"
+    "@types/uuid": "^11.0.0",
+    "hono": "^4.10.7",
+    "uuid": "^13.0.0"
   }
 }

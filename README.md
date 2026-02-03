@@ -1,13 +1,13 @@
-- #### Extremely simple webpage
-The eventual tech stack:
-	- ## Tech Stack
-		- ### Modern & Minimal
-			- **Backend:** Bun + Hono (TypeScript/JavaScript)
-			- **Frontend:** HTMX 2.0 + JSX templates (via Hono)
-			- **Notify:** SSE via Hono
-			- **Database:** SQLite via bun:sqlite (native)
-	- Guiding Principles, will become more relevant as complexity increases:
 
+- ## Overview
+	- Imagine an app that profiles the user and provides daily 'spiritual' guidance generated through clever use of AI.
+		- spiritual in a pragmatic sense.
+	- Imagine Co-Star but instead of astrology driving the mechanisms, it's AI.
+	-
+	- The minimal implementation of the concept is: there's a user profile based on a short assessment; a new 'guidance' is provided once a day generated based on the user profile using AI.
+	- ### Motivation and Scale
+		- Currently only planning on an MVP.
+			- *I'll go more in-depth another time.*
 	- ### Development Guiding Principles
 		- elegant
 		- modular & flexible
@@ -16,17 +16,292 @@ The eventual tech stack:
 		- "tell, don't ask" principle
 		- interactivity
 			- Bias toward supporting visual or design cues corresponding to code changes and app state.
+- ## Design
+	- ### User Experience
+	  *This is the idealized vision post release.*
+		- User: "Lol, this should be good. Like astrology but with AI."
+		- User: *Enters site / app for the first time.*
+		- App: *greets them with a welcome page.*
+		- App: *provides the user ~5 questions; they should be a bit fun to answer. Now the app has a couple question-responses to triangulate insight about their personality.*
+		- App: *after the last-most question the user is obligated to register, offering an input field for their email. (Nothing more.)*
+		- User: "Ah, figures. Well, I'd like to see where this goes." *Submits an email address.*
+		- App: *displays a 'guidance'; the essential job of 'spiritual guidance' is to cause meaningful reframing.*
+		- User: "Huh, I guess I never thought of it that way. Makes sense, this app knows me better than constellations do."
+		- App: *asks user if they would like to have a new guidance sent to their inbox once a week for $2 a month.*
+		- User: "Why not."
+		- User: *Returns 25 hours later* "Ooh, a new guidance. I suppose I should answer some more questions so the guidances are even more relevant. (Plus, it was kind of fun.)"
+	- ### Model, Controller, View
+		- third draft
+			- ## Model
+				- ### User
+					- #### identity
+						- Entity id: UUID
+						- email: string (unique, nullable if anonymous)
+						- ~~auth provider id (?)~~ playtest-cookie: string
+							- *For this prototype: just a simple cookie.*
+					- #### metadata
+						- account status: Enum [ephemeral, premium, registeredOnly]
+						- created at: timestamp
+						- last interacted at: timestamp
+					- #### personality profile
+						- active personality profile: entity id
+				- ### Personality Engine
+					- #### Personality Model
+						- entity id
+						- name: string
+						- version: string (e.g. v1.1)
+						- traits[trait]: any[trait]
+					- #### Personality Trait
+						- entity id
+						- model id
+						- name
+						- description
+				- ### Assessment Engine
+					- #### Question
+						- entity id
+						- text: string
+						- choices[choice]: list[choice]
+						- model id
+						- trait id
+						- base weight: [number]
+					- #### choice
+						- entity id
+						- question id
+						- text
+						- modifier weight: [number]
+				- ### User Personality Profile
+					- #### personality snapshot
+						- entity id
+						- user id
+						- updated at
+						- scores: map
+							- model id
+							- model version
+							- traits
+								- trait id: trait id
+								- score: [0.0 to 1]
+								- label: string
+				- ### Guidance Engine
+					- *I haven't finished this section. I'm still figuring out what is generated vs pre-existing content.*
+						- I'll probably need to define "prompt" objects which are what is passed into the AI.
+							- They can probably be flexible enough to handle all AI generations
+					- #### Guidance
+						- entity id
+						- user id
+						- text
+						- metadata
+						- time generated at: timestamp
+						- input: map
+							- *for the sake of debugging, we store exactly what was sent to the AI.*
+							- [whatever the input data was]
+				- ### AI Response
+					- *This object is what is returned by the AI call module.*
+					- The AI API may return a slightly complex object which needs to be processed into an "AI Response" object.
+			- ## Controller
+				- ### trigger: Anyone navigates to site
+					- #### Unrecognized User -> landing page
+					- #### Recognized User -> dashboard
+				- ### Header
+					- #### Trigger: clicks on the main branding
+					  Main branding -> Dashboard
+				- ### Footer
+					- #### Trigger: button press
+					  Button (all versions before release): "Clear Identity" -> clears user's browser cookies
+				- ### Dashboard
+					- #### Trigger: button press
+					  Button (during playtest, only while possible): "Generate Guidance"
+						- playtesters can manually trigger a generation of a guidance
+						- while possible: For the time being it should have a cooldown of just 30 seconds, but I may later want to increase it to 5 minutes or something.
+					- #### trigger: button press
+					  Button: "Take Assessment" -> Assessment (returning user)
+					- #### trigger: button press
+					  button: "View Profile" -> User Profile
+				- ### Landing (unrecognized users)
+					- button: "begin assessment" -> Onboarding
+					- returning user
+						- label: "Returning user?"
+						- input field: email
+				- ### Assessment
+					- **Registration** (only for final response) -> Dashboard
+						- instead of being a separate page, the registration element in full should be presented along with the question, in order to proceed.
+				- ### Registration
+					- request email
+						- label: "Please provide your email to receive your guidance:"
+						- ~~input field: email -> magic link~~
+						- input field (For the mock/playtest): email (full trust) -> Proceed
+				- ### Info
+					- #### creator information
+						- Created by: Ethan Porter
+						- email (linkTo): Contact@EthanPorter.xyz
+				- ### User Profile
+					- #### Window into User Profile
+						- ~~A serene window into the app's representation of them, particularly their personality profile for their own use.~~
+						- For the playtest: Play-testers will have all of their individual data available to inspect; this is so the play-tester can assess how well the system is doing, especially regarding meaningful vs generic.
+			- ## View
+			  *These are the distinct elements and their assumed properties.*
+				- ### Header
+					- Main branding -> Dashboard
+				- ### Footer
+					- Button (all versions before release): "Clear Identity" -> clears user's browser cookies
+				- ### Dashboard
+					- current guidance
+					- Button (during playtest, only while possible): "Generate Guidance"
+					- Button: "Take Assessment" -> Assessment (returning user)
+					- button: "View Profile" -> User Profile
+				- ### Landing (unrecognized users)
+					- about blurb
+					- button: "begin assessment" -> Onboarding
+					- returning user
+						- label: "Returning user?"
+						- input field: email
+				- ### Assessment
+					- question
+					- choices
+					- **Registration** (only for final response) -> Dashboard
+						- instead of being a separate page, the registration element in full should be presented along with the question, in order to proceed.
+				- ### Registration
+					- request email
+						- label: "Please provide your email to receive your guidance:"
+						- ~~input field: email -> magic link~~
+						- input field (For the mock/playtest): email (full trust) -> Proceed
+				- ### Info
+					- #### 'about' blurb
+						- Answer's the question, "Oh, I forgot what this service I signed up for is; what even is this?"
+					- #### creator information
+						- Created by: Ethan Porter
+						- email (linkTo): Contact@EthanPorter.xyz
+				- ### User Profile
+					- #### Window into User Profile
+						- ~~A serene window into the app's representation of them, particularly their personality profile for their own use.~~
+						- For the playtest: Play-testers will have all of their individual data available to inspect; this is so the play-tester can assess how well the system is doing, especially regarding meaningful vs generic.
+	- ### File Structure
+		- First Draft
+			- **Project Root**
+				- .env
+				- guidances.sqlite
+				- package.json
+				- tsconfig.json
+				- **public/**
+					- styles.css
+				- **src/**
+					- **data/**
+						- questions.json
+					- index.tsx
+					- db.ts
+					- ui.tsx
+					- ai.ts
+					- auth.ts
+					- types.ts
+	- ### Monetization
+		- first draft
+			- "First hit is Free"
+				- The primary userbase is returning, premium users who use the app often but in short spurts. The service is a simple, flat cost: probably $2-5
+				- the funnel: anyone can try the onboarding and get a free initial guidance; users are then encouraged to register for $2 to get a new guidance every morning, potentially through email.
+					- anyone can navigate to the site online and try the onboarding - friction is intentionally low.
+					- after they've gone through onboarding, the app provides their guidance and prompts them with a strong hook - something like, "Want to receive this in your inbox every morning? Only $2"
+	- ### Nature of *Guidances (items of insight)*
+	  AI_Kassandra/nature of insight items
+		- For my collaborators: Be mindful that I'm treating the 'guidances' as an interactive art; **don't** decide on logic yourself, consult with Ethan for the implementation.
+- ## Ideation
+	- ### Market angles from Claude:
+		- "Daily reflection prompts that actually know you"
+		- "Your personality framework that evolves with you"
+		- "Journaling, but the journal talks back"
+		- "Like Co-Star, but real"
+	- ### Practical Details
+	  *Any details that are declared but not elaborated on are probably in progress, do not hesitate to consult Ethan about design & architectural decisions.*
+		- At what step does the app request their email?
+			- just before they get the guidance is ideal, to discourage one-time-use
+				- before even starting the assessment is unnecessarily early, though most honest.
+		- How does the app profile the user?
+			- Each 'choice' has a trait it contributes to and a weight
+				- the user's model & trait value is adjusted through assessment
+			- The more the user does assessments, the more the app can describe the user's unique state within the personality model.
+		- How does the app construct personality snapshots?
+			- at the end of any assessment, multiply the user's trait's base weight (initially neutral) by the newly gathered value, for each new value.
+		- How does the app generate guidances?
+			- The guidances are generated by AI based on a system prompt, the user's unique personality profile, and perhaps other factors to be determined later.
+				- system prompt: This will be developer content, Ethan will be iterating on it over time. Likely located at, `/src/data/system_prompt`
+				- post-launch: another factor may be a "wildcard" inserted for the sake of variety
+		- How are these produced:
+			- Questions, choices, weight
+				- Developer content, likely located at, `/src/data/questions/`
+			- Personality Models
+				- The Big 5 Personality Traits (OCEAN)
+- ## Tech Stack
+	- ### Modern & Minimal
+		- **Backend:** Bun + Hono (TypeScript/JavaScript)
+		- **Frontend:** HTMX 2.0 + JSX templates (via Hono)
+		- **Notify:** SSE via Hono
+		- **Database:** SQLite via bun:sqlite (native)
+- ## Going From Design to Live Service
+	- ### Design - Make a Spec Detailing Guiding Values, Draft MVC Definitions
+		- DONE describe development pillars
+		- DONE declare tech stack
+		- DONE describe monetization
+		- DONE describe primitive types, verbs, views (Model, Controller, View)
+	- ### Minimal Web Interface
+		- *This is for the purposes of exposing me to the technology stack.*
+		- *Before I give the agent the entire design doc, I'll give them just the block below.*
+		- #### Extremely simple webpage
+The eventual tech stack:
+			- ## Tech Stack
+				- ### Modern & Minimal
+					- **Backend:** Bun + Hono (TypeScript/JavaScript)
+					- **Frontend:** HTMX 2.0 + JSX templates (via Hono)
+					- **Notify:** SSE via Hono
+					- **Database:** SQLite via bun:sqlite (native)
+			- Guiding Principles, will become more relevant as complexity increases:
 
-	- only one element: a line of text
-		- the last word in the line of text gets swapped out for another word every two seconds.
-		- word list:
-			- AI Kassandra provides [___].
-				- guidance
-				- reframing
-				- insight
-				- clarity
-				- validation
-				- confidence
-	- The style
-		- Later on we'll focus on the visual design, until then the visual design should be minimal.
-			- To begin, the colors should communicate: 'dark mode' and 'creamy'
+			- ### Development Guiding Principles
+				- elegant
+				- modular & flexible
+					- Clean interfaces should exist for external systems as well as between some internal systems.
+					- external systems and developer content should be handled through interfaces that are flexible to support a "plug and play" capacity.
+				- "tell, don't ask" principle
+				- interactivity
+					- Bias toward supporting visual or design cues corresponding to code changes and app state.
+
+			- only one element: a line of text
+				- the last word in the line of text gets swapped out for another word every two seconds.
+				- word list:
+					- AI Kassandra provides [___].
+						- guidance
+						- reframing
+						- insight
+						- clarity
+						- validation
+						- confidence
+			- The style
+				- Later on we'll focus on the visual design, until then the visual design should be minimal.
+					- To begin, the colors should communicate: 'dark mode' and 'creamy'
+	- ### From Design to Prototype
+		- Implement the design with *mock* capabilities
+			- lay the foundations according to the Model, Controller, View
+			- then implement the logic and features based on the Model, Controller, View; just shallow, mock functionality at first
+		- #### Milestone
+			- Hypothetical new user can go through a mock onboarding:
+				- specify a new username/email
+				- then take a shallow assessment
+				- then get a mock guidance.
+	- ### From Prototype to Playtest
+		- *The playtest will be primarily myself, my girlfriend, and a couple friends. This is maximum trust, requiring minimal polish, because this is a minimal milestone; at the alpha stage we'll tighten everything up to avoid abuse and feel more of the 'magic'.*
+		- *I'm receptive to feedback on the approach / pacing of these milestones.*
+		- #### Milestone
+			- Hypothetical new user can go through onboarding:
+				- specify a username/email
+				- take an actual assessment
+				- get a somewhat meaningful guidance
+				- view their profile, including all individual user data as well as the questions, responses, & guidances as well as their corresponding weights & inputs.
+					- In the playtest, we'll expose all of this information to the play-tester so that they can assess if the system is doing anything meaningful as opposed to generic.
+			- Hypothetical existing user can summon new guidances:
+				- once every minute or so they can select a "new guidance" option.
+	- ### Alpha
+		- In the Alpha is when I'll first consider bringing in truly external users.
+		- This will require we return to the features that I've paved over thus far - the features I don't yet understand fully which I'm looking out for are:
+			- Authentication
+			- Payment Processing
+			- Automation (Cron(?))
+	- ### ????
+	- ### 1.0 - app is in a state such that, if I had a guaranteed customer, I could point them to the site and they could immediately buy into the service.
+	- ### Profit!

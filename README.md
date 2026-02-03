@@ -1,0 +1,32 @@
+- #### Extremely simple webpage
+The eventual tech stack:
+	- ## Tech Stack
+		- ### Modern & Minimal
+			- **Backend:** Bun + Hono (TypeScript/JavaScript)
+			- **Frontend:** HTMX 2.0 + JSX templates (via Hono)
+			- **Notify:** SSE via Hono
+			- **Database:** SQLite via bun:sqlite (native)
+	- Guiding Principles, will become more relevant as complexity increases:
+
+	- ### Development Guiding Principles
+		- elegant
+		- modular & flexible
+			- Clean interfaces should exist for external systems as well as between some internal systems.
+			- external systems and developer content should be handled through interfaces that are flexible to support a "plug and play" capacity.
+		- "tell, don't ask" principle
+		- interactivity
+			- Bias toward supporting visual or design cues corresponding to code changes and app state.
+
+	- only one element: a line of text
+		- the last word in the line of text gets swapped out for another word every two seconds.
+		- word list:
+			- AI Kassandra provides [___].
+				- guidance
+				- reframing
+				- insight
+				- clarity
+				- validation
+				- confidence
+	- The style
+		- Later on we'll focus on the visual design, until then the visual design should be minimal.
+			- To begin, the colors should communicate: 'dark mode' and 'creamy'

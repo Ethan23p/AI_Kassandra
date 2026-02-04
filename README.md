@@ -9,13 +9,15 @@
 		- Currently only planning on an MVP.
 			- *I'll go more in-depth another time.*
 	- ### Development Guiding Principles
-		- elegant
-		- modular & flexible
+		- #### elegant
+		- #### modular & flexible
 			- Clean interfaces should exist for external systems as well as between some internal systems.
 			- external systems and developer content should be handled through interfaces that are flexible to support a "plug and play" capacity.
-		- "tell, don't ask" principle
-		- interactivity
+		- #### "tell, don't ask" principle
+		- #### interactivity
 			- Bias toward supporting visual or design cues corresponding to code changes and app state.
+		- #### Production-Grade Rigor by Default
+			- Strict Type Safety
 - ## Design
 	- ### User Experience
 	  *This is the idealized vision post release.*
@@ -254,13 +256,15 @@ The eventual tech stack:
 			- Guiding Principles, will become more relevant as complexity increases:
 
 			- ### Development Guiding Principles
-				- elegant
-				- modular & flexible
+				- #### elegant
+				- #### modular & flexible
 					- Clean interfaces should exist for external systems as well as between some internal systems.
 					- external systems and developer content should be handled through interfaces that are flexible to support a "plug and play" capacity.
-				- "tell, don't ask" principle
-				- interactivity
+				- #### "tell, don't ask" principle
+				- #### interactivity
 					- Bias toward supporting visual or design cues corresponding to code changes and app state.
+				- #### Production-Grade Rigor by Default
+					- Strict Type Safety
 
 			- only one element: a line of text
 				- the last word in the line of text gets swapped out for another word every two seconds.
@@ -287,7 +291,7 @@ The eventual tech stack:
 	- ### From Prototype to Playtest
 		- *The playtest will be primarily myself, my girlfriend, and a couple friends. This is maximum trust, requiring minimal polish, because this is a minimal milestone; at the alpha stage we'll tighten everything up to avoid abuse and feel more of the 'magic'.*
 		- *I'm receptive to feedback on the approach / pacing of these milestones.*
-		- #### Milestone
+		- #### Milestones
 			- Hypothetical new user can go through onboarding:
 				- specify a username/email
 				- take an actual assessment
@@ -296,6 +300,9 @@ The eventual tech stack:
 					- In the playtest, we'll expose all of this information to the play-tester so that they can assess if the system is doing anything meaningful as opposed to generic.
 			- Hypothetical existing user can summon new guidances:
 				- once every minute or so they can select a "new guidance" option.
+			- While the server is running, users external to Ethan's PC can connect to an instance of the app
+				- I haven't done this before, I'll record it here once I know how I'll be doing it.
+				- in the meantime
 	- ### Alpha
 		- In the Alpha is when I'll first consider bringing in truly external users.
 		- This will require we return to the features that I've paved over thus far - the features I don't yet understand fully which I'm looking out for are:

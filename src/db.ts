@@ -1,5 +1,5 @@
 import { Database } from 'bun:sqlite';
-import { User, PersonalityProfile, Guidance } from './types';
+import { User, PersonalityProfile, Guidance, UserSchema, GuidanceSchema, PersonalityProfileSchema } from './types';
 
 const db = new Database('guidances.sqlite', { create: true });
 
@@ -40,45 +40,64 @@ export default db;
 
 // Helper functions (minimal for prototype)
 export const saveUser = (user: User) => {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     INSERT OR REPLACE INTO users (id, email, playtest_cookie, status, created_at, last_interacted_at)
     VALUES (?, ?, ?, ?, ?, ?)
   `);
-    stmt.run(user.id, user.email, user.playtest_cookie, user.status, user.created_at, user.last_interacted_at);
+  stmt.run(user.id, user.email, user.playtest_cookie, user.status, user.created_at, user.last_interacted_at);
 };
 
 export const getUserAt = (cookie: string): User | null => {
-    const stmt = db.prepare('SELECT * FROM users WHERE playtest_cookie = ?');
-    return stmt.get(cookie) as User | null;
+  const stmt = db.prepare('SELECT * FROM users WHERE playtest_cookie = ?');
+  const result = stmt.get(cookie);
+  if (!result) return null;
+  const parse = UserSchema.safeParse(result);
+  return parse.success ? parse.data : null;
+};
+
+export const getUserByEmail = (email: string): User | null => {
+  const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
+  const result = stmt.get(email);
+  if (!result) return null;
+  const parse = UserSchema.safeParse(result);
+  return parse.success ? parse.data : null;
 };
 
 export const saveProfile = (profile: PersonalityProfile) => {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     INSERT OR REPLACE INTO personality_profiles (id, user_id, updated_at, traits)
     VALUES (?, ?, ?, ?)
   `);
-    stmt.run(profile.id, profile.user_id, profile.updated_at, JSON.stringify(profile.traits));
+  stmt.run(profile.id, profile.user_id, profile.updated_at, JSON.stringify(profile.traits));
 };
 
 export const getProfileAt = (userId: string): PersonalityProfile | null => {
-    const stmt = db.prepare('SELECT * FROM personality_profiles WHERE user_id = ?');
-    const result = stmt.get(userId) as any;
-    if (!result) return null;
-    return {
-        ...result,
-        traits: JSON.parse(result.traits)
+  const stmt = db.prepare('SELECT * FROM personality_profiles WHERE user_id = ?');
+  const result = stmt.get(userId) as any;
+  if (!result) return null;
+
+  try {
+    const profileData = {
+      ...result,
+      traits: JSON.parse(result.traits)
     };
+    return PersonalityProfileSchema.parse(profileData);
+  } catch (e) {
+    console.error(`Failed to parse profile for user ${userId}:`, e);
+    return null;
+  }
 };
 
 export const saveGuidance = (guidance: Guidance) => {
-    const stmt = db.prepare(`
+  const stmt = db.prepare(`
     INSERT OR REPLACE INTO guidances (id, user_id, text, input_data, created_at)
     VALUES (?, ?, ?, ?, ?)
   `);
-    stmt.run(guidance.id, guidance.user_id, guidance.text, guidance.input_data, guidance.created_at);
+  stmt.run(guidance.id, guidance.user_id, guidance.text, guidance.input_data, guidance.created_at);
 };
 
 export const getGuidancesAt = (userId: string): Guidance[] => {
-    const stmt = db.prepare('SELECT * FROM guidances WHERE user_id = ? ORDER BY created_at DESC');
-    return stmt.all(userId) as Guidance[];
+  const stmt = db.prepare('SELECT * FROM guidances WHERE user_id = ? ORDER BY created_at DESC');
+  const results = stmt.all(userId);
+  return results.map(r => GuidanceSchema.parse(r));
 };

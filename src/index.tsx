@@ -1,10 +1,14 @@
 import { Hono } from 'hono'
+import { logger } from 'hono/logger'
 import { Layout, LandingPage, AssessmentPage, RegistrationPage, DashboardPage, UserProfilePage } from './ui'
 import { getSessionUser, createSession, clearSession } from './auth'
-import { saveUser, getProfileAt, saveProfile, saveGuidance, getGuidancesAt, getUserByEmail } from './db'
+import { saveUser, getProfileAt, saveProfile, saveGuidance, getGuidancesAt, getUserByEmail, getTotalGuidanceCountSince } from './db'
 import { setCookie } from 'hono/cookie'
-import { User, PersonalityProfile, Guidance, AssessmentAnswerSchema, RegisterSchema } from './types'
-import questionsData from './data/questions.json'
+import { User, PersonalityProfile, Guidance, AssessmentAnswerSchema, RegisterSchema, Question, QuestionSchema } from './types'
+import { updateProfile, createNeutralProfile } from './user'
+import { generateAIGuidance } from './ai'
+import { CONFIG } from './config'
+import { questionsData } from './data/questions'
 import { v4 as uuidv4 } from 'uuid'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
@@ -16,6 +20,24 @@ type Env = {
 }
 
 const app = new Hono<Env>()
+
+app.use('*', logger())
+
+app.onError((err, c) => {
+    console.error('SERVER ERROR:', err)
+    return c.html(
+        <Layout>
+            <div class="fade-in">
+                <h1>Something went quiet.</h1>
+                <p>Kassandra hit a snag. The stars are momentarily obscured.</p>
+                <code style="opacity: 0.5;">{err.message}</code>
+                <br /><br />
+                <a href="/" class="btn btn-outline">Return to the Path</a>
+            </div>
+        </Layout>,
+        500
+    )
+})
 
 // Middleware to ensure session
 app.use('*', async (c, next) => {
@@ -46,11 +68,14 @@ app.get('/assessment', (c) => {
         user = createSession(c)
     }
 
-    // For prototype, we just start at Q0
-    const question = questionsData[0]
+    const questionKeys = Object.keys(questionsData)
+    const firstId = questionKeys[0]
+    const question = questionsData[firstId]
+    console.log(`[DEBUG] /assessment: Starting with user ${user.id}, Total questions: ${questionKeys.length}`);
+
     return c.html(
         <Layout user={user}>
-            <AssessmentPage question={question} progress={1} />
+            <AssessmentPage question={question} questionId={firstId} progress={1} total={questionKeys.length} />
         </Layout>
     )
 })
@@ -59,37 +84,86 @@ app.post('/api/assessment/answer', zValidator('form', AssessmentAnswerSchema), a
     const user = c.get('user')
     if (!user) return c.redirect('/assessment')
 
-    const { questionId, answerIndex } = c.req.valid('form')
+    const { questionId, answerKey } = c.req.valid('form')
+    const questionIds = Object.keys(questionsData)
+    const currentIndex = questionIds.indexOf(questionId)
 
-    // Normalize comparison by checking strings
-    const currentIndex = questionsData.findIndex(q => String(q.id) === String(questionId))
+    // Sanity check: if question not found, restart assessment
+    if (currentIndex === -1) {
+        console.warn(`[DEBUG] Question not found: ${questionId}`);
+        return c.redirect('/assessment')
+    }
+
+    const currentQuestion = questionsData[questionId]
+    const chosenChoice = currentQuestion.choices[answerKey]
+
+    if (!chosenChoice) {
+        console.warn(`[DEBUG] Choice not found: ${answerKey} for question ${questionId}`);
+        return c.redirect('/assessment')
+    }
+
+    // Update personality profile
+    let profile = getProfileAt(user.id)
+    if (!profile) {
+        profile = createNeutralProfile(user.id)
+    }
+
+    const updatedProfile = updateProfile(profile, chosenChoice.impulses)
+    saveProfile(updatedProfile)
+
     const nextIndex = currentIndex + 1
+    console.log(`[DEBUG] /api/assessment/answer: questionId=${questionId}, answerKey=${answerKey}, nextIdx=${nextIndex}, total=${questionIds.length}`);
 
-    if (nextIndex < 5) { // Prototype: only 5 questions
-        const nextQuestion = questionsData[nextIndex]
-        return c.html(<AssessmentPage question={nextQuestion} progress={nextIndex + 1} />)
+    if (nextIndex < questionIds.length) {
+        const nextId = questionIds[nextIndex]
+        const nextQuestion = questionsData[nextId]
+        return c.html(<AssessmentPage question={nextQuestion} questionId={nextId} progress={nextIndex + 1} total={questionIds.length} />)
     } else {
-        // Generate mock guidance for finishing assessment
-        const mockGuidance: Guidance = {
+        // Broad Protection: Check global daily limit
+        const totalLast24h = getTotalGuidanceCountSince(Date.now() - (24 * 60 * 60 * 1000));
+
+        let guidanceText: string;
+        if (totalLast24h >= CONFIG.GLOBAL_DAILY_GENERATION_LIMIT) {
+            guidanceText = "The collective energy is high. Kassandra is resting. Try again tomorrow.";
+        } else {
+            const profileSnapshot = getProfileAt(user.id);
+            guidanceText = profileSnapshot
+                ? await generateAIGuidance(profileSnapshot)
+                : "Reflect on the silence within.";
+
+            // Update user's last generation timestamp
+            user.last_generated_at = Date.now();
+            saveUser(user);
+        }
+
+        const guidance: Guidance = {
             id: uuidv4(),
             user_id: user.id,
-            text: "By completing this cycle, you've shown a commitment to self-reflection. Today, notice how your assumptions color your environment.",
-            input_data: JSON.stringify({ completedAssessment: true }),
+            text: guidanceText,
+            input_data: JSON.stringify({ completedAssessment: true, profileSnapshot: getProfileAt(user.id) }),
             created_at: Date.now()
         }
-        saveGuidance(mockGuidance)
+        saveGuidance(guidance)
 
-        // If it's the 5th question, go to registration or dashboard
         if (user.status === 'ephemeral') {
-            return c.html(
-                <Layout user={user}>
-                    <RegistrationPage />
-                </Layout>
-            )
+            console.log(`[DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment.`);
+            return c.html(<RegistrationPage />)
         } else {
+            console.log(`[DEBUG] Existing user. Redirecting to dashboard.`);
+            c.header('HX-Redirect', '/dashboard')
             return c.redirect('/dashboard')
         }
     }
+})
+
+app.get('/registration', (c) => {
+    const user = c.get('user')
+    if (!user) return c.redirect('/assessment')
+    return c.html(
+        <Layout user={user}>
+            <RegistrationPage />
+        </Layout>
+    )
 })
 
 app.post('/api/register', zValidator('form', RegisterSchema), async (c) => {
@@ -116,6 +190,7 @@ app.post('/api/register', zValidator('form', RegisterSchema), async (c) => {
     user.status = 'registeredOnly'
     user.last_interacted_at = Date.now()
     saveUser(user)
+    c.header('HX-Redirect', '/dashboard')
     return c.redirect('/dashboard')
 })
 
@@ -141,9 +216,10 @@ app.get('/profile', (c) => {
     if (!user) return c.redirect('/')
 
     const guidances = getGuidancesAt(user.id)
+    const profile = getProfileAt(user.id)
     return c.html(
         <Layout user={user}>
-            <UserProfilePage user={user} guidances={guidances} />
+            <UserProfilePage user={user} guidances={guidances} profile={profile} />
         </Layout>
     )
 })
@@ -154,6 +230,7 @@ app.post('/api/login', zValidator('form', z.object({ email: z.string().email() }
     // Minimal: just create/restore session based on email
     // In a real app, this would be more complex auth
     createSession(c, email)
+    c.header('HX-Redirect', '/dashboard')
     return c.redirect('/dashboard')
 })
 
@@ -162,18 +239,56 @@ app.post('/api/clear-identity', (c) => {
     return c.redirect('/')
 })
 
-app.post('/api/generate-guidance', (c) => {
+app.post('/api/generate-guidance', async (c) => {
     const user = c.get('user')
     if (!user) return c.redirect('/')
 
-    const mockGuidance: Guidance = {
+    // Spam Protection: Individual Cooldown
+    const now = Date.now();
+    if (user.last_generated_at && (now - user.last_generated_at < CONFIG.USER_GENERATION_COOLDOWN_MS)) {
+        const remainingMin = Math.ceil((CONFIG.USER_GENERATION_COOLDOWN_MS - (now - user.last_generated_at)) / 60000);
+        const waitGuidance: Guidance = {
+            id: uuidv4(),
+            user_id: user.id,
+            text: `Patience. Clarity requires time. Return in ${remainingMin} minutes.`,
+            input_data: JSON.stringify({ throttled: true }),
+            created_at: Date.now()
+        }
+        saveGuidance(waitGuidance)
+        return c.redirect('/dashboard')
+    }
+
+    // Broad Protection: Global Daily Limit
+    const totalLast24h = getTotalGuidanceCountSince(now - (24 * 60 * 60 * 1000));
+    if (totalLast24h >= CONFIG.GLOBAL_DAILY_GENERATION_LIMIT) {
+        const limitGuidance: Guidance = {
+            id: uuidv4(),
+            user_id: user.id,
+            text: "The stars are veiled by a great cloud. (Global limit reached). Try again tomorrow.",
+            input_data: JSON.stringify({ global_limited: true }),
+            created_at: Date.now()
+        }
+        saveGuidance(limitGuidance)
+        return c.redirect('/dashboard')
+    }
+
+    const profile = getProfileAt(user.id)
+    const guidanceText = profile
+        ? await generateAIGuidance(profile)
+        : "Action preceded by doubt is still action. Move forward."
+
+    // Update timestamp
+    user.last_generated_at = now;
+    saveUser(user);
+
+    const guidance: Guidance = {
         id: uuidv4(),
         user_id: user.id,
-        text: `Insight generated at ${new Date().toLocaleTimeString()}: Embrace the ambiguity of your current path; clarity often follows action, not thought.`,
-        input_data: JSON.stringify({ manual: true }),
+        text: guidanceText,
+        input_data: JSON.stringify({ manual: true, profileSnapshot: profile }),
         created_at: Date.now()
     }
-    saveGuidance(mockGuidance)
+    saveGuidance(guidance)
     return c.redirect('/dashboard')
 })
 

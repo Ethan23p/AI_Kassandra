@@ -11,9 +11,17 @@ db.run(`
     playtest_cookie TEXT,
     status TEXT,
     created_at INTEGER,
-    last_interacted_at INTEGER
+    last_interacted_at INTEGER,
+    last_generated_at INTEGER
   )
 `);
+
+// Migration: Add last_generated_at if it's an old DB
+try {
+  db.run(`ALTER TABLE users ADD COLUMN last_generated_at INTEGER`);
+} catch (e) {
+  // Column likely already exists
+}
 
 db.run(`
   CREATE TABLE IF NOT EXISTS personality_profiles (
@@ -41,10 +49,10 @@ export default db;
 // Helper functions (minimal for prototype)
 export const saveUser = (user: User) => {
   const stmt = db.prepare(`
-    INSERT OR REPLACE INTO users (id, email, playtest_cookie, status, created_at, last_interacted_at)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT OR REPLACE INTO users (id, email, playtest_cookie, status, created_at, last_interacted_at, last_generated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
-  stmt.run(user.id, user.email, user.playtest_cookie, user.status, user.created_at, user.last_interacted_at);
+  stmt.run(user.id, user.email, user.playtest_cookie, user.status, user.created_at, user.last_interacted_at, user.last_generated_at || null);
 };
 
 export const getUserAt = (cookie: string): User | null => {
@@ -100,4 +108,10 @@ export const getGuidancesAt = (userId: string): Guidance[] => {
   const stmt = db.prepare('SELECT * FROM guidances WHERE user_id = ? ORDER BY created_at DESC');
   const results = stmt.all(userId);
   return results.map(r => GuidanceSchema.parse(r));
+};
+
+export const getTotalGuidanceCountSince = (startTime: number): number => {
+  const stmt = db.prepare('SELECT COUNT(*) as count FROM guidances WHERE created_at > ?');
+  const result = stmt.get(startTime) as { count: number };
+  return result.count;
 };

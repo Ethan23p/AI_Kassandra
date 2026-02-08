@@ -119,42 +119,42 @@ export const Layout = (props: { children: any; user?: User | null }) => {
 
 export const LandingPage = () => {
     return (
-        <div class="fade-in">
+        <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
             <h1>Spiritual Guidance, Triangulated.</h1>
-            <p>
+            <p style="margin-bottom: 2rem;">
                 Imagine astrology, but driven by AI and your actual personality.
                 AI Kassandra analyzes your traits to provide daily pragmatic insight that helps you reframe your world.
             </p>
             <a href="/assessment" class="btn">Begin Assessment</a>
-            <div style="margin-top: 3rem; opacity: 0.7;">
-                <p style="font-size: 0.9rem;">Returning user?</p>
-                <form hx-post="/api/login" hx-target="body">
+
+            <div style="margin-top: 4rem; opacity: 0.7; display: flex; flex-direction: column; align-items: center; width: 100%;">
+                <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">Returning user?</p>
+                <form hx-post="/api/login" hx-target="body" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
                     <input type="email" name="email" placeholder="enter your email" required />
-                    <br />
-                    <button type="submit" class="btn btn-outline" style="font-size: 0.9rem; padding: 0.5rem 1.5rem;">Enter</button>
+                    <button type="submit" class="btn btn-outline" style="font-size: 0.9rem; padding: 0.5rem 1.5rem; margin-top: 1.5rem;">Enter</button>
                 </form>
             </div>
         </div>
     )
 }
 
-export const AssessmentPage = (props: { question: any; progress: number }) => {
+export const AssessmentPage = (props: { question: any; questionId: string; progress: number; total: number }) => {
     return (
-        <div class="fade-in">
+        <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
             <div style="margin-bottom: 2rem; opacity: 0.5; font-size: 0.9rem;">
-                Question {props.progress} / 5
+                Question {props.progress} / {props.total}
             </div>
             <h2 style="font-size: 2rem; margin-bottom: 2rem; max-width: 700px;">{props.question.text}</h2>
-            <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
-                {props.question.options.map((option: string, index: number) => (
+            <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center; width: 100%;">
+                {Object.entries(props.question.choices).map(([key, choice]: [string, any]) => (
                     <button
                         class="btn btn-outline"
                         style="width: 100%; max-width: 400px; margin-top: 0;"
                         hx-post="/api/assessment/answer"
-                        hx-vals={JSON.stringify({ questionId: props.question.id, answerIndex: index })}
-                        hx-target={props.progress === 5 ? "body" : "main"}
+                        hx-vals={JSON.stringify({ questionId: props.questionId, answerKey: key })}
+                        hx-target="main"
                     >
-                        {option}
+                        {choice.text}
                     </button>
                 ))}
             </div>
@@ -164,13 +164,12 @@ export const AssessmentPage = (props: { question: any; progress: number }) => {
 
 export const RegistrationPage = () => {
     return (
-        <div class="fade-in">
+        <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
             <h1>One Last Step.</h1>
             <p>Provide your email to receive your first guidance and preserve your profile.</p>
-            <form hx-post="/api/register" hx-target="body" style="margin-top: 2rem;">
+            <form hx-post="/api/register" hx-target="body" style="margin-top: 2rem; display: flex; flex-direction: column; align-items: center; width: 100%;">
                 <input type="email" name="email" placeholder="your@email.com" required />
-                <br />
-                <button type="submit" class="btn">Proceed to Guidance</button>
+                <button type="submit" class="btn" style="margin-top: 2rem;">Proceed to Guidance</button>
             </form>
         </div>
     )
@@ -178,22 +177,24 @@ export const RegistrationPage = () => {
 
 export const DashboardPage = (props: { guidance: any; user: User }) => {
     return (
-        <div class="fade-in">
+        <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
             <h2 style="opacity: 0.6; font-size: 1.2rem; margin-bottom: 3rem;">Your Daily Insight</h2>
             <div style="background: rgba(245, 245, 220, 0.05); padding: 3rem; border-radius: 8px; max-width: 600px; border: 1px solid rgba(245, 245, 220, 0.1);">
                 <p style="font-size: 1.5rem; font-style: italic; line-height: 1.4;">
                     "{props.guidance.text}"
                 </p>
             </div>
-            <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+            <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
                 <button class="btn" hx-post="/api/generate-guidance" hx-target="body">Generate New Insight</button>
-                <a href="/profile" class="btn btn-outline">View Profile</a>
+                <a href="/profile" class="btn btn-outline" style="margin-top: 2rem;">View Profile</a>
             </div>
         </div>
     )
 }
 
-export const UserProfilePage = (props: { user: User; guidances: any[] }) => {
+export const UserProfilePage = (props: { user: User; guidances: any[]; profile: any }) => {
+    const traits = props.profile ? Object.values(props.profile.traits) : [];
+
     return (
         <div class="fade-in" style="width: 100%; max-width: 800px; text-align: left;">
             <h1 style="font-size: 2.5rem; margin-bottom: 2rem;">User Profile</h1>
@@ -204,6 +205,32 @@ export const UserProfilePage = (props: { user: User; guidances: any[] }) => {
                 <p><strong>Email:</strong> {props.user.email || 'Anonymous'}</p>
                 <p><strong>Status:</strong> {props.user.status}</p>
                 <p><strong>Created:</strong> {new Date(props.user.created_at).toLocaleString()}</p>
+            </section>
+
+            <section style="margin-bottom: 3rem;">
+                <h2 style="font-size: 1.5rem; opacity: 0.7; border-bottom: 1px solid rgba(245, 245, 220, 0.2); padding-bottom: 0.5rem;">Personality Profile</h2>
+                {traits.length > 0 ? (
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem;">
+                        {traits.map((t: any) => (
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <span style="width: 150px; font-weight: 400;">{t.name}</span>
+                                <div style="flex: 1; height: 10px; background: rgba(245, 245, 220, 0.1); border-radius: 5px; position: relative; overflow: hidden;">
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: '50%',
+                                        width: `${Math.abs(t.score) * 50}%`,
+                                        height: '100%',
+                                        background: t.score >= 0 ? '#4CAF50' : '#F44336',
+                                        transform: t.score < 0 ? 'translateX(-100%)' : 'none'
+                                    }}></div>
+                                </div>
+                                <span style="width: 50px; text-align: right; font-size: 0.8rem; opacity: 0.7;">{t.score.toFixed(2)}</span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p style="opacity: 0.5;">No personality data yet. Take the assessment to begin.</p>
+                )}
             </section>
 
             <section style="margin-bottom: 3rem;">

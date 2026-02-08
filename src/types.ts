@@ -9,13 +9,14 @@ export const UserSchema = z.object({
     status: z.enum(['ephemeral', 'registeredOnly', 'premium']),
     created_at: z.number(),
     last_interacted_at: z.number(),
+    last_generated_at: z.number().nullable().optional(),
 });
 
 export type User = z.infer<typeof UserSchema>;
 
 export const AssessmentAnswerSchema = z.object({
     questionId: z.string(),
-    answerIndex: z.string().regex(/^\d+$/).transform(v => parseInt(v, 10)),
+    answerKey: z.string(),
 });
 
 export const RegisterSchema = z.object({
@@ -25,7 +26,7 @@ export const RegisterSchema = z.object({
 export const PersonalityTraitSchema = z.object({
     id: z.string(),
     name: z.string(),
-    score: z.number().min(0).max(1),
+    score: z.number().min(-1).max(1),
     label: z.string(),
 });
 
@@ -40,20 +41,22 @@ export const PersonalityProfileSchema = z.object({
 
 export type PersonalityProfile = z.infer<typeof PersonalityProfileSchema>;
 
-export interface Choice {
-    id: string;
-    text: string;
-    modifier_weight: number;
-}
+export const ChoiceSchema = z.object({
+    text: z.string(),
+    impulses: z.record(z.string(), z.number()),
+});
+
+export type Choice = z.infer<typeof ChoiceSchema>;
 
 export const QuestionSchema = z.object({
-    id: z.string(),
     text: z.string(),
-    category: z.string(),
-    options: z.array(z.string()),
+    tags: z.array(z.string()),
+    choices: z.record(z.string(), ChoiceSchema),
 });
 
 export type Question = z.infer<typeof QuestionSchema>;
+
+export type QuestionMap = Record<string, Question>;
 
 export const GuidanceSchema = z.object({
     id: z.string().uuid(),

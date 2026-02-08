@@ -13,6 +13,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@google/genai": "^1.40.0",
     "@hono/zod-validator": "^0.7.6",
     "@types/uuid": "^11.0.0",
     "hono": "^4.11.7",

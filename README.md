@@ -33,124 +33,184 @@
 		- User: "Why not."
 		- User: *Returns 25 hours later* "Ooh, a new guidance. I suppose I should answer some more questions so the guidances are even more relevant. (Plus, it was kind of fun.)"
 	- ### Model, Controller, View
-		- third draft
-			- ## Model
+		- fourth draft
+			- ## Model (Types)
 				- ### User
-					- #### identity
-						- Entity id: UUID
-						- email: string (unique, nullable if anonymous)
-						- ~~auth provider id (?)~~ playtest-cookie: string
-							- *For this prototype: just a simple cookie.*
-					- #### metadata
-						- account status: Enum [ephemeral, premium, registeredOnly]
-						- created at: timestamp
-						- last interacted at: timestamp
-					- #### personality profile
-						- active personality profile: entity id
-				- ### Personality Engine
-					- #### Personality Model
-						- entity id
-						- name: string
-						- version: string (e.g. v1.1)
-						- traits[trait]: any[trait]
-					- #### Personality Trait
-						- entity id
-						- model id
-						- name
-						- description
-				- ### Assessment Engine
-					- #### Question
-						- entity id
-						- text: string
-						- choices[choice]: list[choice]
-						- model id
-						- trait id
-						- base weight: [number]
-					- #### choice
-						- entity id
-						- question id
-						- text
-						- modifier weight: [number]
+					- id: UUID
+					- email: string (unique, nullable if anonymous)
+					- ~~auth provider id (?)~~ playtest-cookie: string
+						- *For this prototype: just a simple cookie.*
+					- (account) status: Enum [ephemeral, premium, registeredOnly]
+					- created at: timestamp
+					- last interacted at: timestamp
+					- active personality profile: entity id
+						- *depreciating*
+				- ### User implementation:
+					-
+					  ```typescript
+					  export const UserSchema = z.object({
+					      id: z.string().uuid(),
+					      email: z.string().email().nullable(),
+					      playtest_cookie: z.string(),
+					      status: z.enum(['ephemeral', 'registeredOnly', 'premium']),
+					      created_at: z.number(),
+					      last_interacted_at: z.number(),
+					  });
+					  ```
+				- ### Personality Model
+				  *This type is our SSOT reference for the personality models. (Like the Big 5.)*
+					- entity id
+					- name: string
+					- version: string (e.g. v1.1)
+					- traits[trait]: any[trait]
 				- ### User Personality Profile
-					- #### personality snapshot
-						- entity id
-						- user id
-						- updated at
-						- scores: map
-							- model id
-							- model version
-							- traits
-								- trait id: trait id
-								- score: [0.0 to 1]
-								- label: string
-				- ### Guidance Engine
-					- *I haven't finished this section. I'm still figuring out what is generated vs pre-existing content.*
-						- I'll probably need to define "prompt" objects which are what is passed into the AI.
-							- They can probably be flexible enough to handle all AI generations
-					- #### Guidance
-						- entity id
-						- user id
-						- text
-						- metadata
-						- time generated at: timestamp
-						- input: map
-							- *for the sake of debugging, we store exactly what was sent to the AI.*
-							- [whatever the input data was]
-				- ### AI Response
-					- *This object is what is returned by the AI call module.*
-					- The AI API may return a slightly complex object which needs to be processed into an "AI Response" object.
-			- ## Controller
-				- ### trigger: Anyone navigates to site
-					- #### Unrecognized User -> landing page
-					- #### Recognized User -> dashboard
-				- ### Header
-					- #### Trigger: clicks on the main branding
-					  Main branding -> Dashboard
-				- ### Footer
-					- #### Trigger: button press
-					  Button (all versions before release): "Clear Identity" -> clears user's browser cookies
-				- ### Dashboard
-					- #### Trigger: button press
-					  Button (during playtest, only while possible): "Generate Guidance"
-						- playtesters can manually trigger a generation of a guidance
-						- while possible: For the time being it should have a cooldown of just 30 seconds, but I may later want to increase it to 5 minutes or something.
-					- #### trigger: button press
-					  Button: "Take Assessment" -> Assessment (returning user)
-					- #### trigger: button press
-					  button: "View Profile" -> User Profile
-				- ### Landing (unrecognized users)
-					- button: "begin assessment" -> Onboarding
-					- returning user
-						- label: "Returning user?"
-						- input field: email
-				- ### Assessment
-					- **Registration** (only for final response) -> Dashboard
-						- instead of being a separate page, the registration element in full should be presented along with the question, in order to proceed.
+					- id
+					- user id
+					- updated at
+					- traits: record(trait)
+				- ### Personality Profile Implementation:
+					-
+					  ```typescript
+					  export const PersonalityProfileSchema = z.object({
+					      id: z.string().uuid(),
+					      user_id: z.string().uuid(),
+					      updated_at: z.number(),
+					      traits: z.record(z.string(), PersonalityTraitSchema),
+					  });
+					  ```
+				- ### Personality Trait
+					- id
+					- name
+					- score
+					- label
+					- associated model id
+						- *depreciating*
+				- ### Personality Trait Implementation:
+					-
+					  ```typescript
+					  export const PersonalityTraitSchema = z.object({
+					      id: z.string(),
+					      name: z.string(),
+					      score: z.number().min(0).max(1),
+					      label: z.string(),
+					  });
+					  ```
+				- ### Question
+					- id
+					- text: string
+					- choices[choice]: array[choice]
+					- tags: array[tag]
+						- *instead of 'category' we should use 'tags'*
+				- ### choice
+					- id
+					- associated question id (?)
+					- text
+					- weights: array[ [trait] = [weight] ]
+						- *I assume this will be necessary when we implement the assessment system.*
+				- ### Question Implementation:
+					-
+					  ```typescript
+					  export const QuestionSchema = z.object({
+					      id: z.string(),
+					      text: z.string(),
+					      category: z.string(),
+					      options: z.array(z.string()),
+					  });
+					  ```
+				- ### Guidance
+					- id
+					- user id
+					- text
+					- input data: json string
+						- *for the sake of debugging, we store exactly what was sent to the AI.*
+					- created at: timestamp
+				- ### Guidance Implementation:
+					-
+					  ```typescript
+					  export const GuidanceSchema = z.object({
+					      id: z.string().uuid(),
+					      user_id: z.string().uuid(),
+					      text: z.string(),
+					      input_data: z.string(), // JSON string
+					      created_at: z.number(),
+					  });
+					  ```
+			- ## Controller (Events)
+				- ### Clear Identity
+				  *This is present for debugging pre-release.*
+					- located in the footer
+					- Clears user's local cookies for debugging purposes.
+				- ### Collect User Responses
+					- As the user submits during each step of the assessment, collect choices and trait score impulses
+					- when the user submits the final assessment of the current batch, consolidate trait score impulses and **generate personality snapshot**
+				- ### Generate Personality Snapshot
+					- Input:
+						- latest personality snapshot OR neutral
+						- batch of trait score impulses from assessment
+					- Output:
+						- new user personality snapshot (intended to be swapped with latest)
+					- Logic:
+						- Remaining Room Algorithm, TypeScript:
+							-
+							  ```TypeScript
+							  /**
+							   * Applies an impulse to a value constrained between -1 and 1.
+							   * Uses the "Remaining Room" algorithm to prevent overflow.
+							   *
+							   * @param current The current trait score (-1 to 1)
+							   * @param impulse The force of the event (e.g. 0.1 or -0.2)
+							   * @param sensitivity A multiplier for how fast the system learns (0 to 1)
+							   */
+							  function applyImpulse(current: number, impulse: number, sensitivity = 0.1): number {
+							    // 1. Scale the raw impulse by sensitivity
+							    const force = impulse * sensitivity;
+
+							    // 2. Positive Impulse: Grow towards 1.0
+							    if (force > 0) {
+							      const roomToGrow = 1.0 - current;
+							      return current + (force * roomToGrow);
+							    }
+
+							    // 3. Negative Impulse: Shrink towards -1.0
+							    if (force < 0) {
+							      // Note: If current is -0.9, room is 0.1.
+							      const roomToShrink = 1.0 + current;
+							      return current + (force * roomToShrink);
+							    }
+
+							    // 4. No change
+							    return current;
+							  }
+							  ```
+				- ### Generate Guidance
+					- Input:
+						- latest personality snapshot
+						- system prompt
+					- Output:
+						- guidance (intended to be swapped with latest)
 				- ### Registration
-					- request email
-						- label: "Please provide your email to receive your guidance:"
-						- ~~input field: email -> magic link~~
-						- input field (For the mock/playtest): email (full trust) -> Proceed
-				- ### Info
-					- #### creator information
-						- Created by: Ethan Porter
-						- email (linkTo): Contact@EthanPorter.xyz
+					- replaces the "submit" button for the last question of the assessment
+					- input field
+						- prototype & playtest: accepts email with full trust, updates internal identity, updates local identity, lets user proceed
+						- post-playtest: accepts email, does internal verification, updates internal identity, updates local identity, lets user proceed
+							- *This step will do things like handle repeat users and such*
+							- *This step will not, even at release, force the user to go validate their email before proceeding to see their guidance - the app will send the email and they can validate on their own time.*
 				- ### User Profile
 					- #### Window into User Profile
-						- ~~A serene window into the app's representation of them, particularly their personality profile for their own use.~~
-						- For the playtest: Play-testers will have all of their individual data available to inspect; this is so the play-tester can assess how well the system is doing, especially regarding meaningful vs generic.
-			- ## View
-			  *These are the distinct elements and their assumed properties.*
+						- Playtest: Play-testers will have all of their individual data available to inspect; this is so the play-tester can assess how well the system is doing, like judging for meaningful vs generic guidance.
+						- Post-playtest: A serene window into the app's representation of them, particularly their personality profile for their own knowledge.
+			- ## View (Distinct Elements)
 				- ### Header
 					- Main branding -> Dashboard
 				- ### Footer
 					- Button (all versions before release): "Clear Identity" -> clears user's browser cookies
+					- Fine Text (like copyright)
 				- ### Dashboard
 					- current guidance
 					- Button (during playtest, only while possible): "Generate Guidance"
 					- Button: "Take Assessment" -> Assessment (returning user)
 					- button: "View Profile" -> User Profile
-				- ### Landing (unrecognized users)
+				- ### Landing
 					- about blurb
 					- button: "begin assessment" -> Onboarding
 					- returning user
@@ -159,23 +219,27 @@
 				- ### Assessment
 					- question
 					- choices
-					- **Registration** (only for final response) -> Dashboard
-						- instead of being a separate page, the registration element in full should be presented along with the question, in order to proceed.
+					- Button: Submit
+					- Input field: **Registration** (only for final response, replaces 'Submit' button) -> Dashboard
+						- Should not be a separate page
 				- ### Registration
-					- request email
-						- label: "Please provide your email to receive your guidance:"
-						- ~~input field: email -> magic link~~
-						- input field (For the mock/playtest): email (full trust) -> Proceed
+					- label: "Get your guidance by providing your email:"
+					- input field: email
+				- ### User Profile
+					- #### Window into User Profile
+						- For the playtest: Play-testers will have all of their individual data available to inspect
+							- Take care to visualize the data well - tables should be scrollable, multiple views may be necessary
+						- Post-playtest: A serene window into the app's representation of them, particularly a visual representation of their personality profile for their own use.
+							- Text descriptions of the model and the traits.
+							- Visual Representation
+								- Loli-Pop graph, centered at 0 (or average?) with bars representing the traits perpendicular and reaching away from the origin, with positive values above origin and negative values below origin
+								- *Note: This might require a dedicated, separate chunk of work.*
 				- ### Info
 					- #### 'about' blurb
 						- Answer's the question, "Oh, I forgot what this service I signed up for is; what even is this?"
 					- #### creator information
 						- Created by: Ethan Porter
 						- email (linkTo): Contact@EthanPorter.xyz
-				- ### User Profile
-					- #### Window into User Profile
-						- ~~A serene window into the app's representation of them, particularly their personality profile for their own use.~~
-						- For the playtest: Play-testers will have all of their individual data available to inspect; this is so the play-tester can assess how well the system is doing, especially regarding meaningful vs generic.
 	- ### File Structure
 		- First Draft
 			- **Project Root**
@@ -214,20 +278,45 @@
 	  *Any details that are declared but not elaborated on are probably in progress, do not hesitate to consult Ethan about design & architectural decisions.*
 		- At what step does the app request their email?
 			- just before they get the guidance is ideal, to discourage one-time-use
-				- before even starting the assessment is unnecessarily early, though most honest.
 		- How does the app profile the user?
-			- Each 'choice' has a trait it contributes to and a weight
-				- the user's model & trait value is adjusted through assessment
-			- The more the user does assessments, the more the app can describe the user's unique state within the personality model.
+			- A user's personality profile is an array of 5 values from -1 to 1 representing their unique combination of personality.
+			- The assessment determines their personality profile via a simple algorithm (remaining room), described below.
+			- Questions focus on 1 or 2 personality traits
+			- Choices correspond with various positive or negative impulses to those traits
 		- How does the app construct personality snapshots?
-			- at the end of any assessment, multiply the user's trait's base weight (initially neutral) by the newly gathered value, for each new value.
+			- Assessments consist of questions which provide data in the form of 'impulses' to trait scores.
+			- At the end of any assessment, trait impulses are collected together and applied to the user's previous snapshot.
 		- How does the app generate guidances?
-			- The guidances are generated by AI based on a system prompt, the user's unique personality profile, and perhaps other factors to be determined later.
-				- system prompt: This will be developer content, Ethan will be iterating on it over time. Likely located at, `/src/data/system_prompt`
-				- post-launch: another factor may be a "wildcard" inserted for the sake of variety
+			- The guidances are generated by AI based on a system prompt, the user's unique personality profile
+				- system prompt: This will be developer content, Ethan will be iterating on it over time. Likely located at, `/src/data/system_prompt.json`
+					- It will describe a persona named Kassandra who is prompted to generate guidances that are potentially helpful but are also general such that they could apply to anyone with *roughly* that profile
+				- user's latest personality snapshot: user's personality snapshots are transformed into natural language descriptions.
+				- What the AI receives is a system prompt, establishing it's identity as 'Kassandra', and a prompt which describes in natural language a particular personality.
+			- Is there any protection against repetitive guidances?
+				- during the play-test: No
+				- **Post-launch**: I have some ideas;
+					- prevent repetitive sentiment by comparing similarity between new guidances and historical ones
+						- I suspect we could store a user's historical guidances in a vector database, then compare the similarity of a newly generated guidance to that of any historical guidances, or recent ones in particular.
+						- If a new guidance is too similar to previously provided guidances, the app could run the generation again with an identical prompt but with a note appended that says, "*You are to generate a. . .* Here are some of your recent guidances, be mindful to provide fresh insights. [provide those overly similar guidances]"
+							- The AI can be trusted to observe the previous guidances and choose a distinct new direction
+							- hypothetically, if this happens more than once (or often), the app could continuously add the offending generation to the prompt and call for another generation
+					- another factor may be a "wildcard" inserted for the sake of variety or motivated leading.
+			- Is there any protection against nonsensical or contradictory guidances?
+				- during the play-test: No
+				- **Post-launch**: perhaps
+					- The app could send every new generation through a validation AI which assesses the generation multiple times, independently for various failure-modes
+						- e.g.
+							- "The following is a message being sent from my underling to a potential customer. Is the logic sound?",
+							- "Is the message offensive?"
 		- How are these produced:
 			- Questions, choices, weight
-				- Developer content, likely located at, `/src/data/questions/`
+				- Developer content, likely located at, `/src/data/questions.json`
+				- Questions are broad and contain elements of 2 traits, 5+ choices, each refers to a different combination of trait weights
+				- These are generated en-masse and curated by Ethan. The quality and tone can be modulated by breaking the task into modular pieces and tweaking each piece.
+				- questions:
+					- broad, quirky scenarios which abstractly pertain to 2 traits.
+				- choices:
+					- direct responses which abstractly represent various potential reactions to the scenarios.
 			- Personality Models
 				- The Big 5 Personality Traits (OCEAN)
 - ## Tech Stack
@@ -290,7 +379,17 @@ The eventual tech stack:
 				- then get a mock guidance.
 	- ### From Prototype to Playtest
 		- *The playtest will be primarily myself, my girlfriend, and a couple friends. This is maximum trust, requiring minimal polish, because this is a minimal milestone; at the alpha stage we'll tighten everything up to avoid abuse and feel more of the 'magic'.*
-		- *I'm receptive to feedback on the approach / pacing of these milestones.*
+		- #### Transition from Mocks to Logic
+			- Logic: Assessment, User Personality Snapshot, Guidance
+				- Added to the design section under the Controller heading.
+			- implement cooldowns (minimal at this stage)
+		- #### Establish the AI Pipeline
+			- Using Google's Gemini Flash Latest
+				- Do a web search for the correct implementation.
+			- AI Helper logic for crafting input and receiving output
+		- #### Build the Transparency/Inspection View
+		- #### Transition from Internal Server to External Server
+			- I'll be setting up a tunnel through CloudFlare
 		- #### Milestones
 			- Hypothetical new user can go through onboarding:
 				- specify a username/email

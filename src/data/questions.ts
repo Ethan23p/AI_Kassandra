@@ -1,3 +1,31 @@
+/**
+ * KASSANDRA CONTENT ENGINE: QUESTIONS
+ *
+ * This map represents the 'Scenes' or narrative nodes of the assessment.
+ *
+ * --- STRUCTURE ---
+ * [QUESTION_SLUG]: {
+ *   text: "The narrative prompt presented to the user.",
+ *   tags: ["trait_1", "trait_2"], // Broad trait categories involved.
+ *   choices: {
+ *     [CHOICE_SLUG]: {
+ *       text: "The selection text shown on the button.",
+ *       impulses: {
+ *         "trait_name": 0.5, // Range: -1.0 to 1.0.
+ *                            // Values push the user's current score toward the boundary via the 'Remaining Room' algorithm.
+ *       }
+ *     }
+ *   }
+ * }
+ *
+ * --- CONSTRAINTS ---
+ * - Question slugs and Choice slugs must be URL-safe (kebab-case recommended).
+ * - Impulses should stay between -1.0 (Low) and 1.0 (High).
+ *
+ * --- TRAIT KEY (Big 5) ---
+ * 'openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'
+ */
+
 import { QuestionMap } from '../types';
 
 export const questionsData: QuestionMap = {

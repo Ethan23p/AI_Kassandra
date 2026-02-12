@@ -1,5 +1,5 @@
 import { Database } from 'bun:sqlite';
-import { User, PersonalityProfile, Guidance, UserSchema, GuidanceSchema, PersonalityProfileSchema } from './types';
+import { User, PersonalityProfile, Guidance, UserSchema, GuidanceSchema, PersonalityProfileSchema, UserInteraction, UserInteractionSchema } from './types';
 
 const db = new Database('guidances.sqlite', { create: true });
 
@@ -114,4 +114,44 @@ export const getTotalGuidanceCountSince = (startTime: number): number => {
   const stmt = db.prepare('SELECT COUNT(*) as count FROM guidances WHERE created_at > ?');
   const result = stmt.get(startTime) as { count: number };
   return result.count;
+};
+
+// --- Interactions ---
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS user_interactions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT,
+    question_id TEXT,
+    choice_id TEXT,
+    impulses TEXT, -- JSON string
+    created_at INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+  )
+`);
+
+export const saveInteraction = (interaction: UserInteraction) => {
+  const stmt = db.prepare(`
+      INSERT OR REPLACE INTO user_interactions (id, user_id, question_id, choice_id, impulses, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+  stmt.run(interaction.id, interaction.user_id, interaction.question_id, interaction.choice_id, JSON.stringify(interaction.impulses), interaction.created_at);
+};
+
+
+export const getInteractionsAt = (userId: string): UserInteraction[] => {
+  const stmt = db.prepare('SELECT * FROM user_interactions WHERE user_id = ? ORDER BY created_at DESC');
+  const results = stmt.all(userId) as any[];
+
+  return results.map(r => {
+    try {
+      return UserInteractionSchema.parse({
+        ...r,
+        impulses: JSON.parse(r.impulses)
+      });
+    } catch (e) {
+      console.error('Failed to parse interaction', e);
+      return null;
+    }
+  }).filter(i => i !== null) as UserInteraction[];
 };

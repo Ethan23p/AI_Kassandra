@@ -1,7 +1,9 @@
-/**
- * AI Kassandra System Configuration
- */
 export const CONFIG = {
+    // Environment
+    ENV: process.env.NODE_ENV || 'development',
+    DEBUG_MODE: process.env.DEBUG_MODE === 'true' || false,
+    LOG_FILE_PATH: process.env.LOG_FILE_PATH || 'server.log',
+
     // Spam protection: Minimum time between generations for a single user
     USER_GENERATION_COOLDOWN_MS: 30 * 60 * 1000, // 30 minutes
 
@@ -9,5 +11,5 @@ export const CONFIG = {
     GLOBAL_DAILY_GENERATION_LIMIT: 100,
 
     // Personality sensitivity (0.0 to 1.0)
-    PERSONALITY_SENSITIVITY: 0.1,
+    PERSONALITY_SENSITIVITY: 0.5,
 };

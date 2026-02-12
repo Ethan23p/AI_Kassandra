@@ -17,6 +17,7 @@ export type User = z.infer<typeof UserSchema>;
 export const AssessmentAnswerSchema = z.object({
     questionId: z.string(),
     answerKey: z.string(),
+    remainingIds: z.string().optional(),
 });
 
 export const RegisterSchema = z.object({
@@ -67,3 +68,14 @@ export const GuidanceSchema = z.object({
 });
 
 export type Guidance = z.infer<typeof GuidanceSchema>;
+
+export const UserInteractionSchema = z.object({
+    id: z.string().uuid(),
+    user_id: z.string().uuid(),
+    question_id: z.string(),
+    choice_id: z.string(),
+    impulses: z.record(z.string(), z.number()), // Snapshot of applied impulses
+    created_at: z.number(),
+});
+
+export type UserInteraction = z.infer<typeof UserInteractionSchema>;

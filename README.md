@@ -207,6 +207,7 @@
 					- Fine Text (like copyright)
 				- ### Dashboard
 					- current guidance
+						- **Post-launch**: The dashboard feels lifeless since the app is pretty passive in nature, so we may add a fun interaction - maybe something that happens when the user clicks/taps the current guidance.
 					- Button (during playtest, only while possible): "Generate Guidance"
 					- Button: "Take Assessment" -> Assessment (returning user)
 					- button: "View Profile" -> User Profile
@@ -269,20 +270,35 @@
 	  AI_Kassandra/nature of insight items
 		- For my collaborators: Be mindful that I'm treating the 'guidances' as an interactive art; **don't** decide on logic yourself, consult with Ethan for the implementation.
 - ## Ideation
-	- ### Market angles from Claude:
-		- "Daily reflection prompts that actually know you"
-		- "Your personality framework that evolves with you"
-		- "Journaling, but the journal talks back"
-		- "Like Co-Star, but real"
 	- ### Practical Details
 	  *Any details that are declared but not elaborated on are probably in progress, do not hesitate to consult Ethan about design & architectural decisions.*
 		- At what step does the app request their email?
 			- just before they get the guidance is ideal, to discourage one-time-use
-		- How does the app profile the user?
-			- A user's personality profile is an array of 5 values from -1 to 1 representing their unique combination of personality.
-			- The assessment determines their personality profile via a simple algorithm (remaining room), described below.
-			- Questions focus on 1 or 2 personality traits
-			- Choices correspond with various positive or negative impulses to those traits
+		- How are these produced:
+			- Questions, choices, weight
+				- At this early stage: these are procured by a developer using AI & procedurally generated content. Placed in `/src/data/*.ts`
+					- While they could hypothetically be automatically generated, this process serves as Quality Assurance (QA), plus reduces the complexity/cost of external services.
+					- Modern AI is competent at generating the entire package: question + accompanying responses; but, in actuality, each piece is generated individually for the sake of 'single responsibility', simplicity, elegance.
+						- It would be worth including the prompts in this document, if I ever get around to it.
+			- Personality Models
+				- The Big 5 Personality Traits (OCEAN) - Course, this is a pre-existing framework which works spectacularly well.
+		- How does the app profile the user? How do we find their personality in a meaningful sense?
+			- the profile: a user's personality profile is defined by how they measure for each of the 5 traits from 'The Big 5'.
+				- These 5 measures (aka scores) describe a 5 dimensional point/space which is that users precise profile.
+				- When the profile needs to be human-readable, we'll convert to natural language using a lightweight call to AI. (Like: .85 extraversion = quite high (but not extremely high))
+			- the approach: quirky scenario + dialogue choices.
+				- The app assesses the user by posing a quirky scenario to which they will respond with one of 4 dialogue choices.
+					- quirky scenario: pertaining to **2** traits of 'The Big 5' personality traits
+						- e.g. openness & neuroticism
+					- dialogue choices: **4** potential responses which capture the 'vibe' of the various combinations of the *positive* and *negative* expression of those traits.
+						- e.g.
+						  | | **Extraverted** (extraversion, positive) | **Introverted** (extraversion, negative) |
+						  |---|---|---|
+						  | **Anxious** (neurotic, positive) | extraverted and anxious | introverted and anxious |
+						  | **Chill** (neurotic, negative) | extraverted and chill | introverted and chill |
+					- Depending on their response, we can apply an impulse to their active personality profile to increase / decrease the corresponding traits and, over multiple questions pertaining to any given trait, triangulate the specific user's precise measure.
+						- This is 'aggregate' accuracy
+			- Implementation: The profile is a vector of 5 values ranging from -1 to 1; the selected responses apply impulses, greater or lesser, to those values.
 		- How does the app construct personality snapshots?
 			- Assessments consist of questions which provide data in the form of 'impulses' to trait scores.
 			- At the end of any assessment, trait impulses are collected together and applied to the user's previous snapshot.
@@ -308,17 +324,30 @@
 						- e.g.
 							- "The following is a message being sent from my underling to a potential customer. Is the logic sound?",
 							- "Is the message offensive?"
-		- How are these produced:
-			- Questions, choices, weight
-				- Developer content, likely located at, `/src/data/questions.json`
-				- Questions are broad and contain elements of 2 traits, 5+ choices, each refers to a different combination of trait weights
-				- These are generated en-masse and curated by Ethan. The quality and tone can be modulated by breaking the task into modular pieces and tweaking each piece.
-				- questions:
-					- broad, quirky scenarios which abstractly pertain to 2 traits.
-				- choices:
-					- direct responses which abstractly represent various potential reactions to the scenarios.
-			- Personality Models
-				- The Big 5 Personality Traits (OCEAN)
+		- Does the personality profile system primarily orient toward *accuracy*?
+			- pre-launch: yes, just accuracy over a user's 'lifetime'.
+			- Eventually: Yes; specifically, the personality profile orients toward *accurate* measure of personality, *recently*.
+				- While we won't worry about this until later, the personality profile will be dialed in such that each trait is decided by some number of recent relevant responses, as opposed to all relevant responses.
+					- Imagine how many responses determine a given trait's measure:
+						- all relevant responses: once the measures saturate - subtle shifts for any responses.
+						- only latest relevant response: Every question the user answers changes their profile completely.
+						- only the latest 5 relevant responses: once the measures saturate - profile describes the users personality *as of recent*;
+							- each question has the potential to move the measure a bit, providing meaningful feedback but maintaining accuracy
+							- perhaps the app even displays their personality *as of recent* compared to *total average*.
+		- What is the significance of the 'assessment' aspect of the app?
+			- I think this unique approach can create a measure of personality that is more effective, more accurate, and more fun than anything that has been done before.
+			- *more effective, more accurate*
+				- I'm no researcher, but this is an interesting exploration. The key detail in this methodology is that only with recent advances in AI could one generate the amount of content necessary to make complex methods, testing 2 traits per response and with content precisely, consistently tailored for every question & each response.
+			- *more fun*
+				- I believe these assessments, generated procedurally, will be quite fun to go through.
+				- Also, providing an accurate assessment of one's personality is valuable, by itself (though, in this product, it's sort of just a by-product). As demonstrated by the Myers Brigg personality scale, enneagram, and many other less grounded assessments.
+					- User's can engage with the assessments as much as they'd like, meaning some users will only do assessments to the point that they accurately reflect them and other users may return to them often; the data should saturate rather quickly.
+				- The vibe this evokes is like the simple, basically brain-rot quizzes that young people online find themselves attracted to, like, *"Which 'Stranger Things' character are you most like?!"*
+	- ### Market angles from Claude:
+		- "Daily reflection prompts that actually know you"
+		- "Your personality framework that evolves with you"
+		- "Journaling, but the journal talks back"
+		- "Like Co-Star, but real"
 - ## Tech Stack
 	- ### Modern & Minimal
 		- **Backend:** Bun + Hono (TypeScript/JavaScript)
@@ -379,24 +408,39 @@ The eventual tech stack:
 				- then get a mock guidance.
 	- ### From Prototype to Playtest
 		- *The playtest will be primarily myself, my girlfriend, and a couple friends. This is maximum trust, requiring minimal polish, because this is a minimal milestone; at the alpha stage we'll tighten everything up to avoid abuse and feel more of the 'magic'.*
+		- #### Securing the Foundation
+			- Transparent debugging and robustness pass
+				- implement logging
+					- Errors should always reflect to the developer, like a printed message in the console as well as a persistent log file
+						- given that this is such a simple app, my expectations are set high, errors should be quite rare.
+					- A debugging mode which prints *all* events to the console
+			- implement an extensive config system
+			- implement a system for centralized copy text
+				- in `/src/data/copy.ts` we have
+			- if the project is properly modular and flexible, these steps should be a piece of cake.
 		- #### Transition from Mocks to Logic
 			- Logic: Assessment, User Personality Snapshot, Guidance
 				- Added to the design section under the Controller heading.
 			- implement cooldowns (minimal at this stage)
 		- #### Establish the AI Pipeline
 			- Using Google's Gemini Flash Latest
-				- Do a web search for the correct implementation.
-			- AI Helper logic for crafting input and receiving output
+				- **Do a web search** for the correct implementation.
+			- AI Helper logic for crafting input and processing output.
+			- implement a temporary input field in the footer that I can use to validate our AI module
+				- Course, quick and dirty is all we need.
 		- #### Build the Transparency/Inspection View
+			- Any visualization for the traits is sufficient, we'll return to this later to execute the full vision of a 'lolipop' graph.
 		- #### Transition from Internal Server to External Server
 			- I'll be setting up a tunnel through CloudFlare
 		- #### Milestones
 			- Hypothetical new user can go through onboarding:
-				- specify a username/email
 				- take an actual assessment
-				- get a somewhat meaningful guidance
+				- register using an email
+				- get a guidance (standard: somewhat meaningful is sufficient)
 				- view their profile, including all individual user data as well as the questions, responses, & guidances as well as their corresponding weights & inputs.
 					- In the playtest, we'll expose all of this information to the play-tester so that they can assess if the system is doing anything meaningful as opposed to generic.
+			- Hypothetical existing user can bypass the landing page with a "returning user" input field:
+				- If app does not recognize user, they can put their email in a "returning user" input field to be sent to the dashboard view
 			- Hypothetical existing user can summon new guidances:
 				- once every minute or so they can select a "new guidance" option.
 			- While the server is running, users external to Ethan's PC can connect to an instance of the app
@@ -408,6 +452,12 @@ The eventual tech stack:
 			- Authentication
 			- Payment Processing
 			- Automation (Cron(?))
+		- Securing the foundation
+			- Logic Pass: Do a pass to make sure logic is properly in place,
+				- regarding readability and ui vs index vs types vs etc.
+			- Hygiene Pass:
+				- ensure comments are minimal, organized and
+				- remove any that are unnecessary
 	- ### ????
 	- ### 1.0 - app is in a state such that, if I had a guaranteed customer, I could point them to the site and they could immediately buy into the service.
 	- ### Profit!

@@ -1,0 +1,49 @@
+[2026-02-12T21:42:33.416Z] [DEBUG] [DEBUG] /assessment: Starting with user 3ccbd740-0cae-40d3-800f-ac0d7c6a45e7, Shuffled Total: 6 
+[2026-02-12T21:44:12.551Z] [DEBUG] [DEBUG] /assessment: Starting with user 3ccbd740-0cae-40d3-800f-ac0d7c6a45e7, Shuffled Total: 6 
+[2026-02-12T21:44:19.324Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=blueprint-ghost-key, answerKey=extraversion-hi-openness-lo, remaining=5, total=6 
+[2026-02-12T21:44:21.829Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=uninvited-performance-artist, answerKey=agreeableness-lo-neuroticism-hi, remaining=4, total=6 
+[2026-02-12T21:44:23.120Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=the-ticking-archive, answerKey=openness-lo-conscientiousness-lo, remaining=3, total=6 
+[2026-02-12T21:44:24.910Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=shattered-centerpiece-crisis, answerKey=extraversion-lo-agreeableness-lo, remaining=2, total=6 
+[2026-02-12T21:44:26.714Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=manor-inheritance, answerKey=conscientious-open, remaining=1, total=6 
+[2026-02-12T21:44:30.642Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=ink-stain-rivalry, answerKey=neuroticism-hi-agreeableness-lo, remaining=0, total=6 
+[2026-02-12T21:44:31.646Z] [DEBUG] [DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment. 
+[2026-02-12T21:45:33.964Z] [DEBUG] [DEBUG] /assessment: Starting with user a33329cc-4328-4725-8fb4-d71b4ef535ff, Shuffled Total: 6 
+[2026-02-12T21:45:35.666Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=uninvited-performance-artist, answerKey=agreeableness-hi-neuroticism-lo, remaining=5, total=6 
+[2026-02-12T21:45:36.501Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=shattered-centerpiece-crisis, answerKey=extraversion-lo-agreeableness-hi, remaining=4, total=6 
+[2026-02-12T21:45:37.475Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=manor-inheritance, answerKey=spontaneous-open, remaining=3, total=6 
+[2026-02-12T21:45:39.197Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=blueprint-ghost-key, answerKey=extraversion-lo-openness-hi, remaining=2, total=6 
+[2026-02-12T21:45:40.645Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=the-ticking-archive, answerKey=openness-hi-conscientiousness-hi, remaining=1, total=6 
+[2026-02-12T21:45:41.838Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=ink-stain-rivalry, answerKey=neuroticism-hi-agreeableness-lo, remaining=0, total=6 
+[2026-02-12T21:45:42.889Z] [DEBUG] [DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment. 
+[2026-02-12T22:01:29.336Z] [DEBUG] [DEBUG] /assessment: Starting with user b426e6f2-353f-49da-92c9-72da125363ce, Shuffled Total: 6 
+[2026-02-12T22:01:35.910Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=blueprint-ghost-key, answerKey=extraversion-hi-openness-hi, remaining=5, total=6 
+[2026-02-12T22:01:39.748Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=ink-stain-rivalry, answerKey=neuroticism-hi-agreeableness-lo, remaining=4, total=6 
+[2026-02-12T22:01:46.088Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=shattered-centerpiece-crisis, answerKey=extraversion-hi-agreeableness-hi, remaining=3, total=6 
+[2026-02-12T22:01:55.950Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=the-ticking-archive, answerKey=openness-hi-conscientiousness-lo, remaining=2, total=6 
+[2026-02-12T22:02:08.899Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=uninvited-performance-artist, answerKey=agreeableness-hi-neuroticism-lo, remaining=1, total=6 
+[2026-02-12T22:02:17.238Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=manor-inheritance, answerKey=spontaneous-open, remaining=0, total=6 
+[2026-02-12T22:02:18.485Z] [DEBUG] [DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment. 
+[2026-02-12T22:03:18.624Z] [DEBUG] [DEBUG] /assessment: Starting with user b1196bfc-032a-415b-90e0-1a4165975886, Shuffled Total: 6 
+[2026-02-12T22:03:25.028Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=uninvited-performance-artist, answerKey=agreeableness-hi-neuroticism-lo, remaining=5, total=6 
+[2026-02-12T22:03:30.778Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=the-ticking-archive, answerKey=openness-hi-conscientiousness-lo, remaining=4, total=6 
+[2026-02-12T22:03:34.297Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=shattered-centerpiece-crisis, answerKey=extraversion-hi-agreeableness-hi, remaining=3, total=6 
+[2026-02-12T22:03:38.744Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=ink-stain-rivalry, answerKey=neuroticism-hi-agreeableness-hi, remaining=2, total=6 
+[2026-02-12T22:03:44.876Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=manor-inheritance, answerKey=conscientious-open, remaining=1, total=6 
+[2026-02-12T22:03:51.750Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=blueprint-ghost-key, answerKey=extraversion-hi-openness-hi, remaining=0, total=6 
+[2026-02-12T22:03:52.770Z] [DEBUG] [DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment. 
+[2026-02-12T22:10:58.635Z] [DEBUG] [DEBUG] /assessment: Starting with user 5425e6e4-db23-44b1-b971-c4d3ee336852, Shuffled Total: 6 
+[2026-02-12T22:11:03.024Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=uninvited-performance-artist, answerKey=agreeableness-hi-neuroticism-hi, remaining=5, total=6 
+[2026-02-12T22:11:04.099Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=shattered-centerpiece-crisis, answerKey=extraversion-hi-agreeableness-hi, remaining=4, total=6 
+[2026-02-12T22:11:05.190Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=the-ticking-archive, answerKey=openness-lo-conscientiousness-hi, remaining=3, total=6 
+[2026-02-12T22:11:06.262Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=blueprint-ghost-key, answerKey=extraversion-hi-openness-hi, remaining=2, total=6 
+[2026-02-12T22:11:07.200Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=manor-inheritance, answerKey=conscientious-closed, remaining=1, total=6 
+[2026-02-12T22:11:08.156Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=ink-stain-rivalry, answerKey=neuroticism-hi-agreeableness-hi, remaining=0, total=6 
+[2026-02-12T22:11:08.486Z] [DEBUG] [DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment. 
+[2026-02-12T22:17:54.349Z] [DEBUG] [DEBUG] /assessment: Starting with user f79d1f8a-9071-4af6-b4c3-77389f9976e9, Shuffled Total: 6 
+[2026-02-12T22:18:03.130Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=ink-stain-rivalry, answerKey=neuroticism-lo-agreeableness-lo, remaining=5, total=6 
+[2026-02-12T22:18:05.916Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=shattered-centerpiece-crisis, answerKey=extraversion-lo-agreeableness-lo, remaining=4, total=6 
+[2026-02-12T22:18:08.791Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=uninvited-performance-artist, answerKey=agreeableness-lo-neuroticism-lo, remaining=3, total=6 
+[2026-02-12T22:18:24.628Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=the-ticking-archive, answerKey=openness-lo-conscientiousness-lo, remaining=2, total=6 
+[2026-02-12T22:18:39.199Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=manor-inheritance, answerKey=spontaneous-closed, remaining=1, total=6 
+[2026-02-12T22:18:44.936Z] [DEBUG] [DEBUG] /api/assessment/answer: questionId=blueprint-ghost-key, answerKey=extraversion-lo-openness-lo, remaining=0, total=6 
+[2026-02-12T22:18:45.837Z] [DEBUG] [DEBUG] Ephemeral user. Returning Integrated RegistrationPage fragment. 

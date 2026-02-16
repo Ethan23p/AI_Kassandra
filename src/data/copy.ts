@@ -14,8 +14,8 @@ export const COPY = {
         footer_debug_btn: "Ask"
     },
     landing: {
-        title: "Spiritual Guidance, Triangulated.",
-        description: "Imagine astrology, but driven by AI and your actual personality. AI Kassandra analyzes your traits to provide daily pragmatic insight that helps you reframe your world.",
+        title: "The mirror you cannot break.",
+        description: "We gave the algorithm eyes, and it found you. A daily interface that organizes your chaos into a hauntingly accurate reflection of your intent.",
         begin_btn: "Begin Assessment",
         returning_user_label: "Returning user?",
         email_placeholder: "enter your email",

@@ -5,23 +5,6 @@ import { logger } from "./logger";
 
 
 /**
- * Transforms a personality profile into a natural language description.
- */
-function describePersonality(profile: PersonalityProfile): string {
-    const traitDescriptions = Object.values(profile.traits).map(t => {
-        const intensity = Math.abs(t.score);
-        const direction = t.score >= 0 ? "high" : "low";
-        let level = "moderate";
-        if (intensity > 0.7) level = "very " + direction;
-        else if (intensity > 0.3) level = direction;
-
-        return `${t.name} is ${level}`;
-    });
-
-    return traitDescriptions.join(", ") + ".";
-}
-
-/**
  * Generates a guidance using Gemini Flash via the @google/genai SDK.
  */
 export async function generateAIGuidance(profile: PersonalityProfile): Promise<string> {
@@ -32,7 +15,14 @@ export async function generateAIGuidance(profile: PersonalityProfile): Promise<s
     }
 
     const client = new GoogleGenAI({ apiKey });
-    const personalityDescription = describePersonality(profile);
+
+    // Raw Feed: Send exact trait scores to leverage AI's native understanding
+    const traitScores = Object.values(profile.traits).reduce((acc, t) => {
+        acc[t.name] = parseFloat(t.score.toFixed(2));
+        return acc;
+    }, {} as Record<string, number>);
+
+    const personalityDescription = JSON.stringify(traitScores, null, 2);
     const prompt = prompts.kassandra.prompt_template.replace("{personality_description}", personalityDescription);
 
     try {

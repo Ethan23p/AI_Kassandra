@@ -1,7 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 import { PersonalityProfile } from "./types";
-import { PROMPTS as prompts } from "./data/prompts";
+import { PROMPTS } from "./data/prompts";
+import { CONFIG } from "./config";
 import { logger } from "./logger";
+
+function getPersona() {
+    const key = CONFIG.ACTIVE_PERSONA;
+    const persona = (PROMPTS as Record<string, any>)[key];
+    if (!persona) {
+        logger.warn(`Persona "${key}" not found, falling back to "kassandra".`);
+        return PROMPTS.kassandra;
+    }
+    return persona;
+}
 
 
 /**
@@ -23,14 +34,15 @@ export async function generateAIGuidance(profile: PersonalityProfile): Promise<s
     }, {} as Record<string, number>);
 
     const personalityDescription = JSON.stringify(traitScores, null, 2);
-    const prompt = prompts.kassandra.prompt_template.replace("{personality_description}", personalityDescription);
+    const persona = getPersona();
+    const prompt = persona.prompt_template.replace("{personality_description}", personalityDescription);
 
     try {
         const response = await client.models.generateContent({
-            model: "gemini-2.0-flash",
+            model: "gemini-flash-latest",
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             config: {
-                systemInstruction: prompts.kassandra.system_instruction
+                systemInstruction: persona.system_instruction
             }
         });
 
@@ -56,10 +68,10 @@ export async function generateRawResponse(userPrompt: string): Promise<string> {
 
     try {
         const response = await client.models.generateContent({
-            model: "gemini-2.0-flash",
+            model: "gemini-flash-latest",
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
             config: {
-                systemInstruction: prompts.kassandra.system_instruction
+                systemInstruction: getPersona().system_instruction
             }
         });
 

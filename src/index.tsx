@@ -14,6 +14,7 @@ import { COPY } from './data/copy'
 import { v4 as uuidv4 } from 'uuid'
 import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
+import workshop from './workshop/routes'
 
 type Env = {
     Variables: {
@@ -23,7 +24,19 @@ type Env = {
 
 const app = new Hono<Env>()
 
+// Normalize trailing slashes
+app.use('*', async (c, next) => {
+    const path = new URL(c.req.url).pathname
+    if (path !== '/' && path.endsWith('/')) {
+        return c.redirect(path.slice(0, -1), 301)
+    }
+    await next()
+})
+
 app.use('*', honoLogger())
+
+// Mount workshop dev routes
+app.route('/dev/workshop', workshop)
 
 app.onError((err, c) => {
     logger.error('SERVER ERROR:', err)

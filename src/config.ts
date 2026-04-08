@@ -12,4 +12,7 @@ export const CONFIG = {
 
     // Personality sensitivity (0.0 to 1.0)
     PERSONALITY_SENSITIVITY: 0.5,
+
+    // Which persona from prompts.ts to use for guidance generation
+    ACTIVE_PERSONA: process.env.ACTIVE_PERSONA || 'stranger_kassandra_12',
 };

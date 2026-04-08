@@ -29,224 +29,206 @@
 import { QuestionMap } from '../types';
 
 export const questionsData: QuestionMap = {
-    "manor-inheritance": {
-        text: "You unexpectedly inherit a sprawling, slightly dilapidated Victorian manor filled to the brim with dust, antique clutter, and rumors of secret passages behind the bookcases. You step into the chaotic foyer for the first time; what is your immediate plan of action?",
-        tags: [
-            "conscientiousness",
-            "openness"
-        ],
-        choices: {
-            "conscientious-open": {
-                text: "I draft a meticulous renovation plan to restore the architecture while preserving the eccentricities, aiming to convert the manor into a curated museum of curiosities.",
-                impulses: {
-                    conscientiousness: 0.8,
-                    openness: 0.8
-                }
-            },
-            "conscientious-closed": {
-                text: "I immediately hire a professional cleaning crew and an appraiser to catalogue every single item, focusing on a strictly efficient estate sale.",
-                impulses: {
-                    conscientiousness: 0.8,
-                    openness: -0.8
-                }
-            },
-            "spontaneous-open": {
-                text: "I grab a flashlight and ignore the mess entirely, spending the first night hunting for secret passages and imagining an impromptu artist retreat.",
-                impulses: {
-                    conscientiousness: -0.8,
-                    openness: 0.8
-                }
-            },
-            "spontaneous-closed": {
-                text: "I invite my friends over for a party amidst the chaos; we can worry about the cleaning and the serious decisions much later.",
-                impulses: {
-                    conscientiousness: -0.8,
-                    openness: -0.8
-                }
-            }
-        }
-    },
-    "the-ticking-archive": {
-        "text": "In the damp cellar of a defunct clockmaker, you find a lead-lined chest vibrating with a rhythmic pulse and labeled: 'Do Not Open Until the World Ends.'",
-        "tags": [
-            "openness",
-            "conscientiousness"
-        ],
+    "the-itinerary-unravels": {
+        "text": "The long-awaited road trip hits a snag when your destination is unexpectedly closed for the day. Your friends are starting to argue, and the carefully crafted schedule is dissolving in the heat of the roadside.",
+        "tags": ["agreeableness","conscientiousness"],
         "choices": {
-            "openness-hi-conscientiousness-hi": {
-                "text": "I will record the pulse intervals and cross-reference them with local seismic data before attempting a controlled, documented opening.",
+            "structured-harmonizer": {
+                "text": "I’ll step in to soothe the tension and lead everyone through a systematic review of our backup options to get us back on a clear schedule.",
                 "impulses": {
-                    "openness": 0.8,
+                    "agreeableness": 0.8,
                     "conscientiousness": 0.8
                 }
             },
-            "openness-hi-conscientiousness-lo": {
-                "text": "The world is always ending for someone, isn't it? Let's just smash the lock and see if we find a mechanical heart or a shortcut to another dimension.",
+            "spontaneous-harmonizer": {
+                "text": "I’ll suggest we ditch the itinerary entirely and just wander together, following whatever local recommendation or interesting side-road we stumble upon.",
                 "impulses": {
-                    "openness": 0.8,
+                    "agreeableness": 0.8,
                     "conscientiousness": -0.8
                 }
             },
-            "openness-lo-conscientiousness-hi": {
-                "text": "The warning is clear and the structural integrity of the seal must be maintained. I'll file a report and ensure the chest is secured according to safety protocols.",
+            "structured-autonomous": {
+                "text": "I’ll tune out the bickering and start mapping out the most efficient detour myself, then tell the group exactly where we’re going next.",
                 "impulses": {
-                    "openness": -0.8,
+                    "agreeableness": -0.8,
                     "conscientiousness": 0.8
                 }
             },
-            "openness-lo-conscientiousness-lo": {
-                "text": "It's probably just an old prank or a broken pendulum catching on the casing. I'll leave it where it is and get back to the actual work I came here for.",
+            "spontaneous-autonomous": {
+                "text": "I’m going to head off on my own for a few hours; I’d rather explore whatever looks fun in the moment than wait for a committee to decide.",
                 "impulses": {
-                    "openness": -0.8,
+                    "agreeableness": -0.8,
                     "conscientiousness": -0.8
                 }
             }
         }
     },
-    "blueprint-ghost-key": {
-        "text": "A dinner guest slides a heavy, rusted skeleton key across the table, claiming it unlocks a hidden chamber not found on the estate's blueprints. The room goes quiet, all eyes turning to you to decide whether to hunt for the mystery or stick to the wine.",
-        "tags": [
-            "extraversion",
-            "openness"
-        ],
+    "the-velvet-curtain": {
+        "text": "A heavy velvet curtain has appeared overnight in the back of your local bookstore, leading to an unannounced 'sensory exhibit.' The air smells of ozone, and a low, vibrating hum pulses from the darkness behind the fabric.",
+        "tags": ["openness","neuroticism"],
         "choices": {
-            "extraversion-hi-openness-hi": {
-                "text": "Jackpot. Everyone, grab your drinks—we aren't leaving until we find the door that shouldn't exist. Let's see what’s actually behind the woodwork!",
+            "vivid-immersion": {
+                "text": "I’ll go in because I need to see the art, even though the strange atmosphere makes my heart race and my skin prickle.",
                 "impulses": {
-                    "extraversion": 0.8,
-                    "openness": 0.8
-                }
-            },
-            "extraversion-hi-openness-lo": {
-                "text": "Blueprints get misread all the time, but I'm always up for a house tour. Follow me, everyone—I bet it's just a forgotten wine cellar or a storage nook.",
-                "impulses": {
-                    "extraversion": 0.8,
-                    "openness": -0.8
-                }
-            },
-            "extraversion-lo-openness-hi": {
-                "text": "I'll take it. There's a specific kind of beauty in a space that was meant to be forgotten; I’d prefer to wander the halls and see where the layout feels... off.",
-                "impulses": {
-                    "extraversion": -0.8,
-                    "openness": 0.8
-                }
-            },
-            "extraversion-lo-openness-lo": {
-                "text": "It's probably just a spare for the back gate. I’ll leave it here by the centerpiece so the host can put it back where it belongs tomorrow.",
-                "impulses": {
-                    "extraversion": -0.8,
-                    "openness": -0.8
-                }
-            }
-        }
-    },
-    "shattered-centerpiece-crisis": {
-        "text": "The centerpiece of the gallery—a precarious tower of salvaged glass—shatters after a guest stumbles into it, leaving the artist trembling while the crowd freezes in awkward silence.",
-        "tags": [
-            "extraversion",
-            "agreeableness"
-        ],
-        "choices": {
-            "extraversion-hi-agreeableness-hi": {
-                "text": "Everyone, don't just stand there! Let's all pitch in and help the artist turn this accident into a new collective masterpiece right now!",
-                "impulses": {
-                    "extraversion": 0.8,
-                    "agreeableness": 0.8
-                }
-            },
-            "extraversion-hi-agreeableness-lo": {
-                "text": "Look, it is broken. Let’s stop pretending it is a tragedy and just admit the layout was a total safety hazard from the start.",
-                "impulses": {
-                    "extraversion": 0.8,
-                    "agreeableness": -0.8
-                }
-            },
-            "extraversion-lo-agreeableness-hi": {
-                "text": "I will go find the staff and get some cleaning supplies so we can quietly clear this up before anyone gets hurt.",
-                "impulses": {
-                    "extraversion": -0.8,
-                    "agreeableness": 0.8
-                }
-            },
-            "extraversion-lo-agreeableness-lo": {
-                "text": "I am staying out of the way. There is no point in getting involved in a scene that does not concern me.",
-                "impulses": {
-                    "extraversion": -0.8,
-                    "agreeableness": -0.8
-                }
-            }
-        }
-    },
-    "ink-stain-rivalry": {
-        "text": "Your professional rival is seconds away from being called to the podium for a major award when you spot a massive, spreading ink stain on the back of their white blazer.",
-        "tags": [
-            "neuroticism",
-            "agreeableness"
-        ],
-        "choices": {
-            "neuroticism-hi-agreeableness-hi": {
-                "text": "Oh no, this is a disaster! Quick, take my scarf and drape it over your shoulder—we have to hide this before you get to the stage.",
-                "impulses": {
-                    "neuroticism": 0.8,
-                    "agreeableness": 0.8
-                }
-            },
-            "neuroticism-hi-agreeableness-lo": {
-                "text": "You've got a huge mess on your back. It’s a total wreck—you’re really going to walk up there and let everyone see that?",
-                "impulses": {
-                    "neuroticism": 0.8,
-                    "agreeableness": -0.8
-                }
-            },
-            "neuroticism-lo-agreeableness-hi": {
-                "text": "Stay still for a second. There is a mark on your blazer, but if you keep your posture rigid and walk slightly to the left, no one will see it.",
-                "impulses": {
-                    "neuroticism": -0.8,
-                    "agreeableness": 0.8
-                }
-            },
-            "neuroticism-lo-agreeableness-lo": {
-                "text": "There is a giant ink leak on your jacket. It’s going to be a very memorable photo op for you.",
-                "impulses": {
-                    "neuroticism": -0.8,
-                    "agreeableness": -0.8
-                }
-            }
-        }
-    },
-    "uninvited-performance-artist": {
-        "text": "Your collaborator brings a silent performance artist into the studio who begins rearranging your calibrated equipment as part of an 'exploratory piece.' The project is due in three hours.",
-        "tags": [
-            "agreeableness",
-            "neuroticism"
-        ],
-        "choices": {
-            "agreeableness-hi-neuroticism-hi": {
-                "text": "I really want to support the vision, but I’m honestly panicking about the deadline—could we please find a way to do this without touching the main rig?",
-                "impulses": {
-                    "agreeableness": 0.8,
+                    "openness": 0.8,
                     "neuroticism": 0.8
                 }
             },
-            "agreeableness-hi-neuroticism-lo": {
-                "text": "It’s a unique perspective to add to the space. We’ll just need a few minutes to reset everything once they’ve finished their exploration.",
+            "fearless-exploration": {
+                "text": "This looks like a fascinating creative experiment. I’ll push through the curtain to explore whatever bizarre world they’ve built inside.",
                 "impulses": {
-                    "agreeableness": 0.8,
+                    "openness": 0.8,
                     "neuroticism": -0.8
                 }
             },
-            "agreeableness-lo-neuroticism-hi": {
-                "text": "This is a total train wreck. If they mess up the calibration, we are finished, and I’m not spending all night fixing your friend’s mess.",
+            "unsettled-avoidance": {
+                "text": "I’ll stay in the familiar aisles; the sudden change is too jarring, and the vibrating noise is making me feel increasingly anxious.",
                 "impulses": {
-                    "agreeableness": -0.8,
+                    "openness": -0.8,
                     "neuroticism": 0.8
                 }
             },
-            "agreeableness-lo-neuroticism-lo": {
-                "text": "The equipment stays where it is. If they can't perform without moving the gear, they need to find a different room.",
+            "practical-disinterest": {
+                "text": "I have no interest in strange distractions when I’m here for a specific book. I’ll finish my shopping and head out as planned.",
                 "impulses": {
-                    "agreeableness": -0.8,
+                    "openness": -0.8,
                     "neuroticism": -0.8
+                }
+            }
+        }
+    },
+    "neighborhood-festival": {
+        "text": "A vibrant, unannounced street festival has taken over the neighborhood square, filling the air with woodsmoke and loud music. You had a strict schedule of household chores and errands planned for the entire afternoon.",
+        "tags": ["conscientiousness","extraversion"],
+        "choices": {
+            "expedite-and-engage": {
+                "text": "I’ll power through my chores at double-speed so I can head down and join the crowd for the evening.",
+                "impulses": {
+                    "conscientiousness": 0.8,
+                    "extraversion": 0.8
+                }
+            },
+            "stick-to-schedule": {
+                "text": "I’m sticking to my original plan; the festival looks interesting, but my priorities for the day are already set.",
+                "impulses": {
+                    "conscientiousness": 0.8,
+                    "extraversion": -0.8
+                }
+            },
+            "drop-everything-join": {
+                "text": "The errands can wait—I’m heading straight into the thick of it to meet people and see what the commotion is about.",
+                "impulses": {
+                    "conscientiousness": -0.8,
+                    "extraversion": 0.8
+                }
+            },
+            "wander-and-observe": {
+                "text": "I'll set aside my list and take a slow, solo walk through the outskirts of the festival to soak in the atmosphere.",
+                "impulses": {
+                    "conscientiousness": -0.8,
+                    "extraversion": -0.8
+                }
+            }
+        }
+    },
+    "dinner-party-blackout": {
+        "text": "You are mid-sentence during a lively dinner party when the power cuts out, plunging the room into absolute darkness. The sudden silence is heavy with the smell of extinguished candles and the startled breaths of the guests.",
+        "tags": ["extraversion","neuroticism"],
+        "choices": {
+            "vocal-vigilant": {
+                "text": "I’ll start a group song to keep the energy up, even while I’m scanning the dark for any sign of real trouble.",
+                "impulses": {
+                    "extraversion": 0.8,
+                    "neuroticism": 0.8
+                }
+            },
+            "jovial-leader": {
+                "text": "I’ll project my voice over the confusion, making a joke of the situation and rallying everyone to help find the matches.",
+                "impulses": {
+                    "extraversion": 0.8,
+                    "neuroticism": -0.8
+                }
+            },
+            "quiet-observer": {
+                "text": "I’ll retreat into total silence, staying hyper-alert to every footstep and whisper in the shadows until the lights return.",
+                "impulses": {
+                    "extraversion": -0.8,
+                    "neuroticism": 0.8
+                }
+            },
+            "composed-stayer": {
+                "text": "I’ll stay exactly where I am, savoring the sudden stillness and waiting patiently for the host to resolve the issue.",
+                "impulses": {
+                    "extraversion": -0.8,
+                    "neuroticism": -0.8
+                }
+            }
+        }
+    },
+    "lunar-fog-ascent": {
+        "text": "You have spent weeks planning a midnight hike to witness a rare lunar eclipse from the summit. Just as you reach the trailhead, a heavy fog rolls in, swallowing the path and the sky.",
+        "tags": ["conscientiousness","neuroticism"],
+        "choices": {
+            "safety-backup": {
+                "text": "I'll strictly follow our secondary safety route while monitoring the radar every few minutes. I need to be sure we are managing every possible risk as we proceed.",
+                "impulses": {
+                    "conscientiousness": 0.8,
+                    "neuroticism": 0.8
+                }
+            },
+            "methodical-ascent": {
+                "text": "I’ll proceed with the planned ascent at a steady, methodical pace. We are well-prepared for this contingency, and I see no reason to deviate from the schedule.",
+                "impulses": {
+                    "conscientiousness": 0.8,
+                    "neuroticism": -0.8
+                }
+            },
+            "anxious-pivot": {
+                "text": "I’m feeling really unsettled by the conditions, and the lost view is a blow. Let’s just abandon the hike entirely and find a nearby town to explore instead.",
+                "impulses": {
+                    "conscientiousness": -0.8,
+                    "neuroticism": 0.8
+                }
+            },
+            "mystical-wander": {
+                "text": "I'll just start walking and see where we end up. The fog adds a great sense of mystery, and I’m happy to let the original plan go and just enjoy the vibe.",
+                "impulses": {
+                    "conscientiousness": -0.8,
+                    "neuroticism": -0.8
+                }
+            }
+        }
+    },
+    "cabin-twilight-indecision": {
+        "text": "You’re at a weekend cabin with a group of friends, and the final evening has just stretched out before you. The fire is warm, the drinks are poured, and the air is thick with the pleasant indecision of how to spend these last few hours together.",
+        "tags": ["extraversion","agreeableness"],
+        "choices": {
+            "group-catalyst": {
+                "text": "I’m the first to suggest a big, inclusive group game that gets everyone laughing. I love being the spark that brings the whole room together into one joyful, shared moment.",
+                "impulses": {
+                    "extraversion": 0.8,
+                    "agreeableness": 0.8
+                }
+            },
+            "spirited-challenger": {
+                "text": "I’ll propose a competitive tournament or a bold debate topic to keep the energy high. I love a night with some real friction and heat, where people aren't afraid to test their wits against each other.",
+                "impulses": {
+                    "extraversion": 0.8,
+                    "agreeableness": -0.8
+                }
+            },
+            "quiet-anchor": {
+                "text": "I’m happy to settle in and just absorb the warmth of the group's presence from the side. I find a quiet joy in being the steady, supportive listener who helps maintain the peaceful vibe without needing to lead the charge.",
+                "impulses": {
+                    "extraversion": -0.8,
+                    "agreeableness": 0.8
+                }
+            },
+            "independent-observer": {
+                "text": "I’ll likely wander off to a quiet nook or the porch to reflect on the weekend in my own headspace. I’m very comfortable setting my own pace and stepping away from the group's momentum whenever I feel the pull of solitude.",
+                "impulses": {
+                    "extraversion": -0.8,
+                    "agreeableness": -0.8
                 }
             }
         }

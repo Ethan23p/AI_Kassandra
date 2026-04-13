@@ -574,14 +574,6 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
                                 <span class="ws-btn-label">Generate</span>
                                 <span class="ws-spinner">Generating...</span>
                             </button>
-                            <button type="button" class="ws-btn"
-                                hx-post="/dev/workshop/api/guidance/preview"
-                                hx-include="#guidance-form"
-                                hx-target="#result-area"
-                                hx-indicator="#guidance-form">
-                                <span class="ws-btn-label">Preview Payload</span>
-                                <span class="ws-spinner">Building...</span>
-                            </button>
                         </div>
 
                     </form>
@@ -589,8 +581,17 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
 
                 {/* ── Right: Output ── */}
                 <div class="ws-right-col">
-                    <div id="result-area">
-                        <div style="opacity: 0.25; font-size: 0.9rem; padding: 1rem 0;">Output appears here.</div>
+                    {/* Live payload preview — auto-updates as inputs change */}
+                    <div id="live-preview"
+                        hx-post="/dev/workshop/api/guidance/preview"
+                        hx-include="#guidance-form"
+                        hx-trigger="load, input from:#guidance-form delay:600ms, change from:#guidance-form delay:600ms"
+                        hx-swap="innerHTML">
+                        <div style="opacity: 0.25; font-size: 0.85rem; padding: 0.5rem 0;">Loading payload preview...</div>
+                    </div>
+                    {/* Generation results */}
+                    <div id="result-area" style="margin-top: 1.5rem;">
+                        <div style="opacity: 0.25; font-size: 0.9rem; padding: 1rem 0;">Generation results appear here.</div>
                     </div>
                 </div>
             </div>

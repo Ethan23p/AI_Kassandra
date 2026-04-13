@@ -461,11 +461,12 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
                         {/* Persona Load/Save */}
                         <div class="ws-section">
                             <label class="ws-label">Persona</label>
-                            <div style="display: flex; gap: 0.6rem; align-items: center;">
+                            {/* Load row */}
+                            <div style="display: flex; gap: 0.6rem; align-items: center; margin-bottom: 0.5rem;">
                                 <select name="persona_key" id="persona-key-select" class="ws-select">
                                     {props.personaKeys.map(k => <option value={k} selected={k === firstKey}>{k}</option>)}
                                 </select>
-                                <button type="button" class="ws-btn"
+                                <button type="button" class="ws-btn" style="flex-shrink: 0;"
                                     hx-get="/dev/workshop/api/guidance/load-persona"
                                     hx-include="[name='persona_key']"
                                     hx-target="#persona-fields"
@@ -473,9 +474,14 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
                                     <span class="ws-btn-label">Load</span>
                                     <span class="ws-spinner">...</span>
                                 </button>
-                                <button type="button" class="ws-btn"
+                            </div>
+                            {/* Save row */}
+                            <div style="display: flex; gap: 0.6rem; align-items: center;">
+                                <input type="text" name="save_name" id="save-name-input" class="ws-input"
+                                    placeholder="save as..." />
+                                <button type="button" class="ws-btn" style="flex-shrink: 0;"
                                     hx-post="/dev/workshop/api/guidance/save-persona"
-                                    hx-include="#guidance-form"
+                                    hx-include="[name='save_name'],[name='system_instruction'],[name='prompt_template']"
                                     hx-target="#persona-status"
                                     hx-indicator="#guidance-form">
                                     <span class="ws-btn-label">Save</span>

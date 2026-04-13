@@ -299,7 +299,7 @@ workshop.post('/api/guidance/preview', async (c) => {
 
 workshop.post('/api/guidance/save-persona', async (c) => {
     const body = await c.req.parseBody();
-    const key = body['persona_key'] as string;
+    const key = (body['save_name'] as string)?.trim();
     const systemInstruction = body['system_instruction'] as string;
     const promptTemplate = body['prompt_template'] as string;
 

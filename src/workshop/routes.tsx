@@ -21,7 +21,7 @@ function getQuestionPrompts() {
 }
 import { QuestionSchema } from '../types'
 import { BIG_FIVE_TRAITS, ALL_TRAIT_PAIRS, QUESTION_GENERATION_SPEC, type TraitName } from './content-spec'
-import { generateQuestion, generateQuestionFromPrompt, buildGuidancePrompt, generateGuidances } from './ai'
+import { generateQuestion, generateQuestionFromPrompt, buildGuidanceRequest, buildQuestionRequest, generateGuidances } from './ai'
 import { appendQuestion, savePersona, saveQuestionPrompt } from './files'
 import {
     WorkshopLanding,
@@ -30,7 +30,6 @@ import {
     ExistingEntriesPanel,
     GuidanceWorkshopPage,
     GuidanceResultCards,
-    PromptPreview,
     SuccessMessage,
     ErrorMessage,
 } from './ui'
@@ -191,10 +190,10 @@ workshop.post('/api/questions/preview', async (c) => {
 
     const systemInstruction = composedSystemInstruction || QUESTION_GENERATION_SPEC;
     const userPrompt = buildQuestionUserPrompt(trait1, trait2, seedPrompt);
+    const request = buildQuestionRequest(systemInstruction, userPrompt);
+    const json = JSON.stringify(request, null, 2);
 
-    return c.html(
-        <PromptPreview model="gemini-flash-latest" systemInstruction={systemInstruction} userPrompt={userPrompt} />
-    );
+    return c.html(<pre class="ws-pre" style="font-size: 0.78rem;">{json}</pre>);
 })
 
 workshop.post('/api/questions/approve', async (c) => {
@@ -286,13 +285,10 @@ workshop.post('/api/guidance/preview', async (c) => {
         ? priorEntriesRaw.split('\n').map(l => l.trim()).filter(Boolean)
         : [];
 
-    const { systemInstruction: sysInst, userPrompt } = buildGuidancePrompt(
-        systemInstruction, promptTemplate, traitValues, persistentHistory
-    );
+    const request = buildGuidanceRequest(systemInstruction, promptTemplate, traitValues, persistentHistory);
+    const json = JSON.stringify(request, null, 2);
 
-    return c.html(
-        <PromptPreview model="gemini-flash-latest" systemInstruction={sysInst} userPrompt={userPrompt} />
-    );
+    return c.html(<pre class="ws-pre" style="font-size: 0.78rem;">{json}</pre>);
 })
 
 workshop.post('/api/guidance/save-persona', async (c) => {

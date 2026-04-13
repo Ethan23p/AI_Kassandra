@@ -404,30 +404,10 @@ export const ExistingEntriesPanel = (props: {
 // ─── Question Result Card (HTMX fragment) ───────────────────────
 
 export const QuestionResultCard = (props: { question: any; slug: string; questionJson: string }) => {
-    const q = props.question;
     return (
         <div class="ws-card fade-in">
-            <h3 style="font-size: 1.1rem; margin: 0 0 0.3rem 0; opacity: 0.5;">Generated: {props.slug}</h3>
-            <p style="margin: 0 0 0.5rem 0; font-size: 0.85rem; opacity: 0.5;">Tags: {q.tags.join(', ')}</p>
-            <p style="font-style: italic; margin-bottom: 1rem; line-height: 1.5;">{q.text}</p>
-
-            <div style="display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem;">
-                {Object.entries(q.choices).map(([slug, choice]: [string, any]) => (
-                    <div style="background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 4px;">
-                        <div style="font-size: 0.75rem; opacity: 0.4; margin-bottom: 0.3rem;">{slug}</div>
-                        <div style="margin-bottom: 0.3rem;">{choice.text}</div>
-                        <div style="font-size: 0.8rem; opacity: 0.6;">
-                            {Object.entries(choice.impulses).map(([trait, val]: [string, any]) => (
-                                <span style={`margin-right: 0.8rem; color: ${val > 0 ? '#4CAF50' : '#F44336'};`}>
-                                    {trait}: {val > 0 ? '+' : ''}{val}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div style="display: flex; gap: 0.8rem;">
+            <pre class="ws-pre" style="font-size: 0.78rem;">{JSON.stringify(props.question, null, 2)}</pre>
+            <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
                 <button class="ws-btn ws-btn-primary"
                     hx-post="/dev/workshop/api/questions/approve"
                     hx-vals={JSON.stringify({ question_json: props.questionJson })}
@@ -611,40 +591,12 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
 export const GuidanceResultCards = (props: { guidances: string[]; traitValues: Record<string, number>; persistentHistory: string[] }) => {
     return (
         <div class="fade-in">
-            {props.guidances.map((g, i) => (
-                <div class="ws-card" style="margin-bottom: 1rem;">
-                    <div style="font-size: 0.8rem; opacity: 0.4; margin-bottom: 0.5rem;">Generation {i + 1}</div>
-                    <p style="font-size: 1.2rem; font-style: italic; line-height: 1.5; margin: 0;">"{g}"</p>
-                </div>
-            ))}
-            <div style="font-size: 0.8rem; opacity: 0.4; margin-top: 0.5rem;">
-                Input: {Object.entries(props.traitValues).map(([k, v]) => (
-                    <span style={`margin-right: 0.8rem; color: ${v > 0 ? '#4CAF50' : '#F44336'};`}>
-                        {k}: {v > 0 ? '+' : ''}{v.toFixed(2)}
-                    </span>
-                ))}
-            </div>
+            <pre class="ws-pre" style="font-size: 0.78rem;">{JSON.stringify(props.guidances, null, 2)}</pre>
             <textarea name="prior_entries" id="prior-entries"
                 hx-swap-oob="true"
                 class="ws-textarea"
                 style="min-height: 80px; font-size: 0.85rem;"
                 placeholder="Paste prior guidances here, one per line...">{props.persistentHistory.join('\n')}</textarea>
-        </div>
-    )
-}
-
-// ─── Prompt Preview (HTMX fragment) ────────────────────────────
-
-export const PromptPreview = (props: { model: string; systemInstruction: string; userPrompt: string }) => {
-    return (
-        <div class="fade-in">
-            <div class="ws-card">
-                <div style="font-size: 0.8rem; opacity: 0.4; margin-bottom: 0.5rem;">Model: {props.model}</div>
-                <h3 style="font-size: 1rem; margin: 0 0 0.5rem 0; opacity: 0.6;">System Instruction</h3>
-                <pre class="ws-pre">{props.systemInstruction}</pre>
-                <h3 style="font-size: 1rem; margin: 1rem 0 0.5rem 0; opacity: 0.6;">User Prompt</h3>
-                <pre class="ws-pre">{props.userPrompt}</pre>
-            </div>
         </div>
     )
 }

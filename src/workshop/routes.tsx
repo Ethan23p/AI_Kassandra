@@ -191,7 +191,7 @@ workshop.post('/api/questions/preview', async (c) => {
     const systemInstruction = composedSystemInstruction || QUESTION_GENERATION_SPEC;
     const userPrompt = buildQuestionUserPrompt(trait1, trait2, seedPrompt);
     const request = buildQuestionRequest(systemInstruction, userPrompt);
-    const json = JSON.stringify(request, null, 2);
+    const json = JSON.stringify(request, null, 2).replace(/\\n/g, '\n');
 
     return c.html(<pre class="ws-pre" style="font-size: 0.78rem;">{json}</pre>);
 })
@@ -286,7 +286,7 @@ workshop.post('/api/guidance/preview', async (c) => {
         : [];
 
     const request = buildGuidanceRequest(systemInstruction, promptTemplate, traitValues, persistentHistory);
-    const json = JSON.stringify(request, null, 2);
+    const json = JSON.stringify(request, null, 2).replace(/\\n/g, '\n');
 
     return c.html(<pre class="ws-pre" style="font-size: 0.78rem;">{json}</pre>);
 })

@@ -62,11 +62,8 @@ export async function generateQuestionFromPrompt(systemInstruction: string, user
     const client = getClient();
     if (!client) throw new Error("GEMINI_API_KEY is not set.");
 
-    const response = await client.models.generateContent({
-        model: MODEL,
-        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-        config: { systemInstruction },
-    });
+    const request = buildQuestionRequest(systemInstruction, userPrompt);
+    const response = await client.models.generateContent(request);
 
     const raw = response.text || '';
     logger.debug(`[Workshop] Question generation raw response: ${raw.substring(0, 200)}...`);
@@ -88,6 +85,18 @@ export async function generateQuestionFromPrompt(systemInstruction: string, user
         logger.error("[Workshop] Failed to parse question JSON:", e);
         throw new Error(`Gemini returned invalid JSON. Raw response:\n${raw}`);
     }
+}
+
+/**
+ * Build the full Gemini API request object for question generation.
+ * Used by both the live preview and the actual generation call.
+ */
+export function buildQuestionRequest(systemInstruction: string, userPrompt: string) {
+    return {
+        model: MODEL,
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        config: { systemInstruction },
+    };
 }
 
 // ─── Guidance Generation ────────────────────────────────────────
@@ -112,6 +121,26 @@ export function buildGuidancePrompt(
 }
 
 /**
+ * Build the full Gemini API request object for guidance generation.
+ * Used by both the live preview and the actual generation call.
+ */
+export function buildGuidanceRequest(
+    systemInstruction: string,
+    promptTemplate: string,
+    traitValues: Record<string, number>,
+    persistentHistory: string[] = [],
+) {
+    const { systemInstruction: sysInst, userPrompt } = buildGuidancePrompt(
+        systemInstruction, promptTemplate, traitValues, persistentHistory,
+    );
+    return {
+        model: MODEL,
+        contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+        config: { systemInstruction: sysInst },
+    };
+}
+
+/**
  * Call Gemini to generate one or more guidances.
  */
 export async function generateGuidances(
@@ -129,15 +158,8 @@ export async function generateGuidances(
     // Generate sequentially so each can feed into the next for persistent mode
     for (let i = 0; i < count; i++) {
         const currentHistory = [...persistentHistory, ...results];
-        const { systemInstruction: sysInst, userPrompt } = buildGuidancePrompt(
-            systemInstruction, promptTemplate, traitValues, currentHistory,
-        );
-
-        const response = await client.models.generateContent({
-            model: MODEL,
-            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            config: { systemInstruction: sysInst },
-        });
+        const request = buildGuidanceRequest(systemInstruction, promptTemplate, traitValues, currentHistory);
+        const response = await client.models.generateContent(request);
 
         const text = response.text?.trim() || 'The stars are silent today.';
         results.push(text);

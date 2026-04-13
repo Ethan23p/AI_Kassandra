@@ -130,7 +130,7 @@ workshop.get('/api/questions/load-prompt', (c) => {
 
 workshop.post('/api/questions/save-prompt', async (c) => {
     const body = await c.req.parseBody();
-    const key = (body['prompt_key'] as string)?.trim();
+    const key = (body['save_key'] as string)?.trim();
     const prompt = body['composed_system_instruction'] as string;
 
     if (!key || !prompt) {

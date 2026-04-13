@@ -211,27 +211,37 @@ export const QuestionGeneratorPage = (props: { promptKeys: string[] }) => {
                         <div class="ws-section">
                             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem;">
                                 <label class="ws-label" style="margin: 0;">Generative Prompt</label>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <select name="prompt_key" id="prompt-key-select" class="ws-select" style="width: auto; font-size: 0.82rem; padding: 0.25rem 0.5rem;">
-                                        {props.promptKeys.map(k => <option value={k} selected={k === firstKey}>{k}</option>)}
-                                    </select>
-                                    <button type="button" class="ws-btn" style="font-size: 0.82rem; padding: 0.25rem 0.7rem;"
-                                        hx-get="/dev/workshop/api/questions/load-prompt"
-                                        hx-include="[name='prompt_key']"
-                                        hx-target="#generative-prompt-wrap"
-                                        hx-indicator="#question-form">
-                                        <span class="ws-btn-label">Load</span>
-                                        <span class="ws-spinner">...</span>
-                                    </button>
-                                    <button type="button" class="ws-btn" style="font-size: 0.82rem; padding: 0.25rem 0.7rem;"
-                                        hx-post="/dev/workshop/api/questions/save-prompt"
-                                        hx-include="#question-form"
-                                        hx-target="#prompt-status"
-                                        hx-indicator="#question-form">
-                                        <span class="ws-btn-label">Save</span>
-                                        <span class="ws-spinner">...</span>
-                                    </button>
-                                </div>
+                            </div>
+                            {/* Load row */}
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                                <select name="prompt_key" id="prompt-key-select" class="ws-select"
+                                    style="font-size: 0.82rem; padding: 0.25rem 0.5rem;">
+                                    {props.promptKeys.map(k => <option value={k} selected={k === firstKey}>{k}</option>)}
+                                </select>
+                                <button type="button" class="ws-btn"
+                                    style="font-size: 0.82rem; padding: 0.25rem 0.7rem; flex-shrink: 0;"
+                                    hx-get="/dev/workshop/api/questions/load-prompt"
+                                    hx-include="[name='prompt_key']"
+                                    hx-target="#generative-prompt-wrap"
+                                    hx-indicator="#question-form">
+                                    <span class="ws-btn-label">Load</span>
+                                    <span class="ws-spinner">...</span>
+                                </button>
+                            </div>
+                            {/* Save row */}
+                            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.4rem;">
+                                <input type="text" name="save_key" id="save-key-input" class="ws-input"
+                                    style="font-size: 0.82rem; padding: 0.25rem 0.5rem;"
+                                    placeholder="save as..." />
+                                <button type="button" class="ws-btn"
+                                    style="font-size: 0.82rem; padding: 0.25rem 0.7rem; flex-shrink: 0;"
+                                    hx-post="/dev/workshop/api/questions/save-prompt"
+                                    hx-include="[name='save_key'],[name='composed_system_instruction']"
+                                    hx-target="#prompt-status"
+                                    hx-indicator="#question-form">
+                                    <span class="ws-btn-label">Save</span>
+                                    <span class="ws-spinner">...</span>
+                                </button>
                             </div>
                             <div id="prompt-status" style="margin-bottom: 0.4rem;"></div>
                             <div id="generative-prompt-wrap">

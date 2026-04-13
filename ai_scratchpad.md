@@ -1,135 +1,90 @@
-# AI Kassandra — TODO Tracker
-
-> Tasks pulled verbatim from the design doc at [[projects/AI_Kassandra]] in Logseq.
-> Analysis and context folded in from prior scratchpad sessions where relevant.
+# AI Kassandra — Sprint Tracker
 
 ---
 
-## From Prototype to Playtest
+## For Agents
 
-### Content Generation Utility for Ethan
+**Canonical design doc:** Logseq page `[[projects/AI_Kassandra]]` — pull it via the Logseq MCP tools (`mcp__mcp-logseq__get_page_content`, page name: `projects/AI_Kassandra`) before starting any sprint task.
 
-> DONE 1.0 - Scrappy utility at a dev-limited path `/dev/workshop` which allows Ethan to quickly iterate through prompts to generate scenarios + dialogue choices and to iterate on prompts for the persona that generates guidances.
-
----
-
-TODO 1.1 - Total overhaul toward, "transparent by design" is necessary, our first pass didn't prioritize this.
+The design doc contains: full product vision, UX flow, MVC definitions, monetization model, personality system details, guidance philosophy, and the full workshop spec. CLAUDE.md covers architecture and runtime rules. Between the two, you should have everything you need — consult Ethan for anything that isn't covered.
 
 ---
 
-### Securing the Foundation
+## Phase: Prototype → Playtest
 
-TODO Systematic Review: We should return to this, our first attempt was a bit too gentle. Ideally, Claude will put together a systematized plan to make sure all code is reviewed and has logging implemented.
-
----
-
-TODO Systematic Review: Claude should comb through the code for any potential configuration options.
+> Playtest audience: Ethan, girlfriend, a few close friends.
+> Max-trust context — minimal polish, focus on play factors.
+> Alpha stage will tighten abuse protection and "magic" feel.
 
 ---
 
-TODO Systematic Review: I think we got most of this, but a review would be good. *(re: copy text centralization in `copy.ts`)*
+## Sprint: Workshop — Content Generation Utility
+
+Dev-only path: `/dev/workshop` — lets Ethan rapidly iterate on scenario prompts, dialogue choices, and guidance persona prompts.
+
+> **Spec ref:** Full workshop spec lives in Logseq under `### Content Generation Utility for Ethan`. Key sections: "scenarios + dialogue choices", "guidances", "additional features/notes".
+
+| # | Status | Task |
+|---|--------|------|
+| 1.0 | DONE | Scrappy utility at `/dev/workshop` for iterating prompts (scenarios + dialogue choices + guidance persona) |
+| 1.1 | DONE | Full overhaul toward "transparent by design"; added "Randomize Traits" button to both workflows |
+| 1.2 | IN PROGRESS | Bug fixes from redesign (see below) |
+
+### 1.2 Open Items
+
+- [ ] **Save function rework** — Both flows lack a working "Save" because the selector is a dropdown. Rework so a prompt/persona can actually be persisted.
+  - *Spec:* Guidances flow should have load (dropdown → populate fields) and save (store with custom name) for personas in `prompts.ts`. Assessment flow should similarly persist the generative prompt.
+- [ ] **Live JSON derivation** — Guidance generation section should show live-derived JSON (or at minimum the text content) as the user edits. Bonus: also implement for assessment generation.
+  - *Spec:* "live preview of the exact contents that will be passed to the generation API — should robustly source the contents from *after* all transformations and additions are made, ideally in collaboration with the AI module"
+- [ ] **"Previously Generated Entries" field + persistent-user toggle** — These two are coupled: the "Previously Generated Entries (optional)" field is populated by the persistent-user toggle. Verify the field exists and that the toggle correctly accumulates prior session outputs into it (on) or clears/ignores it (off).
+  - *Spec:* "persistent user: on — each generated guidance gets included in the prompt for the following guidances (just in the current session)"; "persistent user: off — each generation is a fresh guidance"
 
 ---
 
-### Transition from Mocks to Logic
+## Sprint: Playtest-Specific Features
 
-TODO Playtest feature: implement a new button which allows playtesters to simulate the passing of 24 hours, thus making a new guidance available *as if* they had organically come back after 24 hours.
-- integrated smoothly, configurable (consult with Ethan on best options, perhaps a floating button?)
-- this feature replaces an earlier specified (not sure if implemented) feature which allowed playtesters to "regenerate guidances"
-
-> **Analysis:** A `/api/debug/advance-time` POST route (gated behind a playtester check) that sets `user.last_generated_at` to `Date.now() - CONFIG.USER_GENERATION_COOLDOWN_MS - 1`, effectively clearing the cooldown.
-> **Open questions:** Floating overlay or integrated into dashboard? Auto-generate or just unlock?
+- [ ] **Time-skip button** — New button that simulates 24 hours passing, making a new guidance available as if the user returned organically the next day. Should be smoothly integrated and configurable. *Replaces* any earlier "regenerate guidances" feature.
+- [ ] **User tagging system** — Support tagging users (`playtester`, `alpha`, etc.) to enable per-user experience configuration.
 
 ---
 
-TODO general feature: we should support the capacity to tag users with playtester, alpha, perhaps other tags such that we can configure the user experience per-user.
+## Sprint: Testing — Systematic Audit & Implementation
 
-> **Analysis:** Add a `tags` TEXT column to the users table (JSON array of strings). Add helpers to check tags. Gate playtest-only features behind a `playtester` tag.
-> **Open question:** How do users get tagged? Manually in the DB? A secret URL? Automatically for all users during playtest phase?
+### Phase 1: Audit Prep
 
----
+- [ ] **Create function outline** — Comprehensive list of every function in the codebase in this file, with checkboxes, in two identical copies titled:
+  - "Centralized Copy & Extensive Configuration"
+  - "Comprehensive Observability"
 
-TODO Validate *(re: assessment, personality snapshot, guidance logic)*
+### Phase 2: Centralized Copy & Extensive Configuration
 
----
+*For each function in the outline above:*
 
-TODO Validate, assess need *(re: cooldowns)*
+- [ ] Identify all user-facing text → centralize to `src/data/copy.ts`
+- [ ] Identify all values that should be configurable → expose in `src/config.ts`
 
----
+### Phase 3: Comprehensive Observability
 
-### Establish the AI Pipeline
+*For each function in the outline above:*
 
-TODO Validate: Should more of a "helper" design pattern be implemented? The system should be minimally capable of having the AI model / provider swapped out.
+- [ ] Identify every point resources are allocated → ensure appropriate cooldowns & limits; surprising usage should be logically incompatible with correct operation
+- [ ] Identify every interaction/operation → add associated logging (`debug` = comprehensive, `routine` = routed to central log)
 
-> **Analysis:** `ai.ts` directly instantiates `GoogleGenAI`. It's ~72 lines. Swapping providers later is a find-and-replace, not an architecture change. Recommend: skip for playtest, revisit at alpha.
+### Phase 4: Logic & Correctness Testing
 
----
-
-### Build the Transparency/Inspection View
-
-TODO Validate: Review with Ethan what the meaningful data is which can be provided for playtesters. Let Ethan know if any particular data is exceptionally effortful to make available to playtesters, otherwise provide all of it.
-
-> **Currently exposed on `/profile`:** identity info, personality traits (radar chart), guidance history, detailed interaction log (question/choice/impulses per answer).
-> **Candidate additions:** exact prompt + system instruction sent to Gemini per guidance; trait score progression over time (graph); raw Gemini response metadata (token count, model version).
-
----
-
-### Transition from Internal Server to External Server
-
-> DONE Ethan has set up a tunnel through Cloudflared for multiple playtests.
-
-TODO Setup a persistently hosted instance at a subsite of `EthanPorter.xyz`
-*(Claude: To the best of my knowledge this is an Ethan only task, so no need to worry about it.)*
+- [ ] Exhaustively identify and record all instances of:
+  - Important logic
+  - Information flows
+  - Boundary violations
+  - "Tell-don't-ask" violations
+- [ ] Define 15–25 tests covering important logic & information flows (boundaries, constraints, correctness, procedure)
+- [ ] Resolve each recorded violation
 
 ---
 
-### Milestones
+## Sprint: Persistent Web Domain
 
-TODO Validate: Hypothetical new user can go through onboarding:
-- take an actual assessment
-- register using an email
-- get a guidance (standard: somewhat meaningful is sufficient)
-- view their profile, including all individual user data as well as the questions, responses, & guidances as well as their corresponding weights & inputs.
-  - In the playtest, we'll expose all of this information to the play-tester so that they can assess if the system is doing anything meaningful as opposed to generic.
-
----
-
-TODO Validate: Hypothetical existing user can bypass the landing page with a "returning user" input field:
-- If app does not recognize user, they can put their email in a "returning user" input field to be sent to the dashboard view
-
-> **Analysis:** Test that an existing user who enters their email on the landing page actually gets routed to `/dashboard` with their full profile and guidance history intact. The `createSession` function in `auth.ts` may or may not handle this correctly — needs verification.
-
----
-
-TODO Validate: Hypothetical existing user can access a button for 'advance 24 hours' which simulates time passing (initializing a new guidance generation)
-
----
-
-## Alpha
-
-TODO prepare codebase for genuine partitioning of users
-
----
-
-TODO enable registration with 'magic-link'
-
----
-
-TODO also ensure there's a more manual process Ethan can engage in, for the outliers, whatever they may be.
-
----
-
-TODO Ethan sets up an LLC for his AI products. *(Claude: I think this is also an Ethan only task, no need to worry about it.)*
-
----
-
-TODO Ethan opens a business bank account. *(Claude: don't worry about it, Ethan task)*
-
----
-
-TODO Establish a workflow for dev and user interaction through email, like a mailing list (I suppose)
-
----
-
-TODO Establish a workflow for automated, programmatic email dispatch
-- like cron
+| # | Status | Task |
+|---|--------|------|
+| 1 | DONE | Set up Cloudflare tunnel for external access |
+| 2 | DONE | Tunnel live and tested across multiple playtests |

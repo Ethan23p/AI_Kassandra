@@ -37,8 +37,6 @@ The server uses **Hono** (not `Bun.serve()`), with JSX rendered server-side via 
 
 **Zod v4**: This project uses Zod v4 (`^4.3.6`), not v3. Key differences: `z.input`/`z.output` replace `z.infer`, `.parse()` returns `{ success, data, error }` by default, and schema composition APIs differ. Check Zod v4 docs before assuming v3 patterns.
 
-**Zod v4**: This project uses Zod v4 (`^4.3.6`), not v3. Key differences: `z.input`/`z.output` replace `z.infer`, `.parse()` returns `{ success, data, error }` by default, and schema composition APIs differ. Check Zod v4 docs before assuming v3 patterns.
-
 ## Architecture
 
 **AI Kassandra** is a personality-assessment web app. Users answer narrative scenario questions that map to Big 5 personality traits; after completing the assessment, Gemini Flash generates a short, cryptic "guidance" insight.
@@ -65,7 +63,13 @@ The server uses **Hono** (not `Bun.serve()`), with JSX rendered server-side via 
 | `src/data/questions.ts` | Assessment question bank (Big 5 narrative scenarios with impulse maps) |
 | `src/data/prompts.ts` | Kassandra's AI persona: `system_instruction` + `prompt_template` |
 | `src/data/copy.ts` | All UI strings centralized here |
+| `src/data/question-prompts.ts` | Prompt templates for assessment question generation |
 | `src/logger.ts` | Singleton `logger` (INFO/WARN/ERROR/DEBUG); writes to console + `LOG_FILE_PATH`. DEBUG output gated by `CONFIG.DEBUG_MODE`. |
+| `src/workshop/routes.tsx` | Dev-only `/dev/workshop` route — content generation UI for Ethan |
+| `src/workshop/ui.tsx` | Workshop JSX components |
+| `src/workshop/ai.ts` | Workshop Gemini calls (question + guidance generation) |
+| `src/workshop/files.ts` | File I/O for persisting prompts/personas to `src/data/` |
+| `src/workshop/content-spec.ts` | Zod schemas for workshop content types |
 
 ### Personality System
 

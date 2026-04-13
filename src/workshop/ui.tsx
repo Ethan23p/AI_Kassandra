@@ -317,7 +317,16 @@ export const QuestionGeneratorPage = (props: { promptKeys: string[] }) => {
 
                 {/* ── Right: Output ── */}
                 <div class="ws-right-col">
-                    <div id="result-area">
+                    {/* Live payload preview — auto-updates as inputs change */}
+                    <div id="live-preview"
+                        hx-post="/dev/workshop/api/questions/preview"
+                        hx-include="#question-form"
+                        hx-trigger="load, input from:#question-form delay:600ms, change from:#question-form delay:600ms"
+                        hx-swap="innerHTML">
+                        <div style="opacity: 0.25; font-size: 0.85rem; padding: 0.5rem 0;">Loading payload preview...</div>
+                    </div>
+                    {/* Generation results */}
+                    <div id="result-area" style="margin-top: 1.5rem;">
                         <div style="opacity: 0.25; font-size: 0.9rem; padding: 1rem 0;">Output appears here.</div>
                     </div>
                 </div>

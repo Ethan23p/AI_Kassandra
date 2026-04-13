@@ -20,7 +20,7 @@ function getQuestionPrompts() {
     return require('../data/question-prompts').QUESTION_PROMPTS as Record<string, string>;
 }
 import { QuestionSchema } from '../types'
-import { BIG_FIVE_TRAITS, ALL_TRAIT_PAIRS, type TraitName } from './content-spec'
+import { BIG_FIVE_TRAITS, ALL_TRAIT_PAIRS, QUESTION_GENERATION_SPEC, type TraitName } from './content-spec'
 import { generateQuestion, generateQuestionFromPrompt, buildGuidancePrompt, generateGuidances } from './ai'
 import { appendQuestion, savePersona, saveQuestionPrompt } from './files'
 import {
@@ -180,6 +180,21 @@ workshop.post('/api/questions/generate', async (c) => {
         logger.error('[Workshop] Question generation failed:', e);
         return c.html(<ErrorMessage message={e.message || 'Generation failed.'} />);
     }
+})
+
+workshop.post('/api/questions/preview', async (c) => {
+    const body = await c.req.parseBody();
+    const trait1 = ((body['trait1'] as string) || BIG_FIVE_TRAITS[0]) as TraitName;
+    const trait2 = ((body['trait2'] as string) || BIG_FIVE_TRAITS[1]) as TraitName;
+    const seedPrompt = (body['seed_prompt'] as string) || undefined;
+    const composedSystemInstruction = (body['composed_system_instruction'] as string) || undefined;
+
+    const systemInstruction = composedSystemInstruction || QUESTION_GENERATION_SPEC;
+    const userPrompt = buildQuestionUserPrompt(trait1, trait2, seedPrompt);
+
+    return c.html(
+        <PromptPreview model="gemini-flash-latest" systemInstruction={systemInstruction} userPrompt={userPrompt} />
+    );
 })
 
 workshop.post('/api/questions/approve', async (c) => {

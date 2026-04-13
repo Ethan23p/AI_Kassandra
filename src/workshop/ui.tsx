@@ -536,7 +536,7 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
                         {/* Previously Generated Entries */}
                         <div class="ws-section">
                             <label class="ws-label">Previously Generated Entries <span style="opacity: 0.4;">(optional — one per line)</span></label>
-                            <textarea name="prior_entries" class="ws-textarea"
+                            <textarea name="prior_entries" id="prior-entries" class="ws-textarea"
                                 style="min-height: 80px; font-size: 0.85rem;"
                                 placeholder="Paste prior guidances here, one per line..."></textarea>
                         </div>
@@ -561,8 +561,6 @@ export const GuidanceWorkshopPage = (props: { personaKeys: string[] }) => {
                                 </div>
                             </div>
                         </div>
-
-                        <input type="hidden" name="persistent_history" id="persistent-history" value="[]" />
 
                         {/* Actions */}
                         <div style="display: flex; gap: 0.8rem;">
@@ -617,9 +615,11 @@ export const GuidanceResultCards = (props: { guidances: string[]; traitValues: R
                     </span>
                 ))}
             </div>
-            <input type="hidden" name="persistent_history" id="persistent-history"
-                value={JSON.stringify(props.persistentHistory)}
-                hx-swap-oob="true" />
+            <textarea name="prior_entries" id="prior-entries"
+                hx-swap-oob="true"
+                class="ws-textarea"
+                style="min-height: 80px; font-size: 0.85rem;"
+                placeholder="Paste prior guidances here, one per line...">{props.persistentHistory.join('\n')}</textarea>
         </div>
     )
 }

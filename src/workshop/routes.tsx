@@ -227,19 +227,10 @@ workshop.post('/api/guidance/generate', async (c) => {
         traitValues[trait] = parseFloat(body[trait] as string || '0');
     }
 
-    // Merge explicit prior entries + session persistent history
-    let persistentHistory: string[] = [];
-    if (persistentMode) {
-        try {
-            persistentHistory = JSON.parse(body['persistent_history'] as string || '[]');
-        } catch { persistentHistory = []; }
-    }
-
     const priorEntriesRaw = (body['prior_entries'] as string || '').trim();
-    if (priorEntriesRaw) {
-        const priorLines = priorEntriesRaw.split('\n').map(l => l.trim()).filter(Boolean);
-        persistentHistory = [...priorLines, ...persistentHistory];
-    }
+    const persistentHistory = persistentMode
+        ? priorEntriesRaw.split('\n').map(l => l.trim()).filter(Boolean)
+        : [];
 
     try {
         const guidances = await generateGuidances(
@@ -275,18 +266,10 @@ workshop.post('/api/guidance/preview', async (c) => {
     }
 
     const persistentMode = body['persistent_mode'] === 'true';
-    let persistentHistory: string[] = [];
-    if (persistentMode) {
-        try {
-            persistentHistory = JSON.parse(body['persistent_history'] as string || '[]');
-        } catch { persistentHistory = []; }
-    }
-
     const priorEntriesRaw = (body['prior_entries'] as string || '').trim();
-    if (priorEntriesRaw) {
-        const priorLines = priorEntriesRaw.split('\n').map(l => l.trim()).filter(Boolean);
-        persistentHistory = [...priorLines, ...persistentHistory];
-    }
+    const persistentHistory = persistentMode
+        ? priorEntriesRaw.split('\n').map(l => l.trim()).filter(Boolean)
+        : [];
 
     const { systemInstruction: sysInst, userPrompt } = buildGuidancePrompt(
         systemInstruction, promptTemplate, traitValues, persistentHistory

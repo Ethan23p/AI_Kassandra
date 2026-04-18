@@ -1,5 +1,6 @@
-import { PersonalityProfile, PersonalityTrait } from './types';
+import { PersonalityProfile, PersonalityTrait, User } from './types';
 import { v4 as uuidv4 } from 'uuid';
+import { CONFIG } from './config';
 
 /**
  * Applies an impulse to a value constrained between -1 and 1.
@@ -81,4 +82,30 @@ export function createNeutralProfile(userId: string): PersonalityProfile {
         updated_at: Date.now(),
         traits
     };
+}
+
+/**
+ * Constructs a fresh User. The single source of truth for new-user defaults —
+ * status derived from email, tags populated from CONFIG.DEFAULT_NEW_USER_TAGS.
+ */
+export function buildNewUser(params: { email: string | null; playtest_cookie?: string }): User {
+    const now = Date.now();
+    return {
+        id: uuidv4(),
+        email: params.email,
+        playtest_cookie: params.playtest_cookie ?? uuidv4(),
+        status: params.email ? 'registeredOnly' : 'ephemeral',
+        created_at: now,
+        last_interacted_at: now,
+        last_generated_at: null,
+        tags: [...CONFIG.DEFAULT_NEW_USER_TAGS],
+    };
+}
+
+/**
+ * Pure helper for the "advance time" event: returns a timestamp shifted
+ * backward so that the user's cooldown has effectively elapsed.
+ */
+export function shiftLastGeneratedForAdvance(now: number, deltaMs: number): number {
+    return now - deltaMs;
 }

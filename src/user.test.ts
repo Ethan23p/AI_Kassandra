@@ -1,6 +1,7 @@
 import { expect, test, describe } from "bun:test";
-import { applyImpulse, updateProfile, createNeutralProfile } from "./user";
+import { applyImpulse, updateProfile, createNeutralProfile, buildNewUser, shiftLastGeneratedForAdvance } from "./user";
 import { PersonalityProfile } from "./types";
+import { CONFIG } from "./config";
 
 describe("Personality Logic", () => {
     describe("Remaining Room Algorithm (applyImpulse)", () => {
@@ -58,5 +59,46 @@ describe("Personality Logic", () => {
             expect(updatedProfile.traits["openness"]).toBeDefined();
             expect(updatedProfile.traits["openness"].score).toBeGreaterThan(0);
         });
+    });
+});
+
+describe("User Factory (buildNewUser)", () => {
+    test("applies DEFAULT_NEW_USER_TAGS to a fresh user", () => {
+        const user = buildNewUser({ email: null });
+        expect(user.tags).toEqual([...CONFIG.DEFAULT_NEW_USER_TAGS]);
+    });
+
+    test("assigns 'ephemeral' status when email is null", () => {
+        const user = buildNewUser({ email: null });
+        expect(user.status).toBe("ephemeral");
+        expect(user.email).toBeNull();
+    });
+
+    test("assigns 'registeredOnly' status when email is provided", () => {
+        const user = buildNewUser({ email: "newbie@example.com" });
+        expect(user.status).toBe("registeredOnly");
+        expect(user.email).toBe("newbie@example.com");
+    });
+
+    test("returns a mutation-safe copy of DEFAULT_NEW_USER_TAGS", () => {
+        const user = buildNewUser({ email: null });
+        user.tags.push("mutated");
+        expect(CONFIG.DEFAULT_NEW_USER_TAGS).not.toContain("mutated");
+    });
+});
+
+describe("Advance Time (shiftLastGeneratedForAdvance)", () => {
+    test("shifts timestamp backward by deltaMs", () => {
+        const now = 1_000_000_000_000;
+        const delta = 24 * 60 * 60 * 1000;
+        expect(shiftLastGeneratedForAdvance(now, delta)).toBe(now - delta);
+    });
+
+    test("is a pure function (does not mutate inputs)", () => {
+        const now = 2_000_000_000_000;
+        const delta = 42;
+        shiftLastGeneratedForAdvance(now, delta);
+        expect(now).toBe(2_000_000_000_000);
+        expect(delta).toBe(42);
     });
 });

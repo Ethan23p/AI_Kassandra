@@ -1,7 +1,10 @@
 import { Database } from 'bun:sqlite';
 import { User, PersonalityProfile, Guidance, UserSchema, GuidanceSchema, PersonalityProfileSchema, UserInteraction, UserInteractionSchema } from './types';
 
-const db = new Database('guidances.sqlite', { create: true });
+const db = new Database(
+  process.env.NODE_ENV === 'test' ? ':memory:' : 'guidances.sqlite',
+  { create: true }
+);
 
 // Initialize tables
 db.run(`
@@ -12,13 +15,21 @@ db.run(`
     status TEXT,
     created_at INTEGER,
     last_interacted_at INTEGER,
-    last_generated_at INTEGER
+    last_generated_at INTEGER,
+    tags TEXT -- JSON array of tag strings
   )
 `);
 
 // Migration: Add last_generated_at if it's an old DB
 try {
   db.run(`ALTER TABLE users ADD COLUMN last_generated_at INTEGER`);
+} catch (e) {
+  // Column likely already exists
+}
+
+// Migration: Add tags column for older DBs
+try {
+  db.run(`ALTER TABLE users ADD COLUMN tags TEXT`);
 } catch (e) {
   // Column likely already exists
 }
@@ -49,26 +60,46 @@ export default db;
 // Helper functions (minimal for prototype)
 export const saveUser = (user: User) => {
   const stmt = db.prepare(`
-    INSERT OR REPLACE INTO users (id, email, playtest_cookie, status, created_at, last_interacted_at, last_generated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT OR REPLACE INTO users (id, email, playtest_cookie, status, created_at, last_interacted_at, last_generated_at, tags)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `);
-  stmt.run(user.id, user.email, user.playtest_cookie, user.status, user.created_at, user.last_interacted_at, user.last_generated_at || null);
+  stmt.run(
+    user.id,
+    user.email,
+    user.playtest_cookie,
+    user.status,
+    user.created_at,
+    user.last_interacted_at,
+    user.last_generated_at || null,
+    JSON.stringify(user.tags ?? []),
+  );
+};
+
+const hydrateUserRow = (row: any): User | null => {
+  // Deserialize tags JSON (stored as TEXT) before zod validation.
+  // NULL tags (pre-migration rows) become an empty array.
+  const tags = typeof row.tags === 'string'
+    ? (() => {
+        try { return JSON.parse(row.tags); }
+        catch { return []; }
+      })()
+    : [];
+  const parse = UserSchema.safeParse({ ...row, tags });
+  return parse.success ? parse.data : null;
 };
 
 export const getUserAt = (cookie: string): User | null => {
   const stmt = db.prepare('SELECT * FROM users WHERE playtest_cookie = ?');
   const result = stmt.get(cookie);
   if (!result) return null;
-  const parse = UserSchema.safeParse(result);
-  return parse.success ? parse.data : null;
+  return hydrateUserRow(result);
 };
 
 export const getUserByEmail = (email: string): User | null => {
   const stmt = db.prepare('SELECT * FROM users WHERE email = ?');
   const result = stmt.get(email);
   if (!result) return null;
-  const parse = UserSchema.safeParse(result);
-  return parse.success ? parse.data : null;
+  return hydrateUserRow(result);
 };
 
 export const saveProfile = (profile: PersonalityProfile) => {

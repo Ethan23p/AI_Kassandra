@@ -10,6 +10,7 @@ export const UserSchema = z.object({
     created_at: z.number(),
     last_interacted_at: z.number(),
     last_generated_at: z.number().nullable().optional(),
+    tags: z.array(z.string()).default([]),
 });
 
 export type User = z.infer<typeof UserSchema>;

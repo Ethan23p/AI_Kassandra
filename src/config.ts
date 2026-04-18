@@ -15,4 +15,10 @@ export const CONFIG = {
 
     // Which persona from prompts.ts to use for guidance generation
     ACTIVE_PERSONA: process.env.ACTIVE_PERSONA || 'stranger_kassandra_12',
+
+    // Tags applied to every newly created user. Gates playtest-only features.
+    DEFAULT_NEW_USER_TAGS: ['playtester'] as string[],
+
+    // Amount of time the "advance time" button simulates skipping forward.
+    ADVANCE_TIME_DELTA_MS: 24 * 60 * 60 * 1000, // 24 hours
 };

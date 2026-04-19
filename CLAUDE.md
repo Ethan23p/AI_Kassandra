@@ -53,7 +53,7 @@ The server uses **Hono** (not `Bun.serve()`), with JSX rendered server-side via 
 | File | Purpose |
 |---|---|
 | `src/index.tsx` | All Hono routes (SSR with JSX). The app entry point. |
-| `src/ai.ts` | Gemini Flash integration (`generateAIGuidance`, `generateRawResponse`) |
+| `src/ai.ts` | Gemini Flash integration (`generateAIGuidance`) |
 | `src/db.ts` | SQLite via `bun:sqlite`; DB file is `guidances.sqlite` at project root |
 | `src/auth.ts` | Cookie-based sessions (`kassandra_session` HTTP-only cookie) |
 | `src/user.ts` | Personality math: `applyImpulse`, `updateProfile`, `createNeutralProfile` |

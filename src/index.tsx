@@ -283,10 +283,7 @@ app.post('/api/clear-identity', (c) => {
     return c.redirect('/')
 })
 
-app.post('/api/generate-guidance', async (c) => {
-    const user = c.get('user')
-    if (!user) return c.redirect('/')
-
+async function generateAndSaveGuidance(user: User): Promise<void> {
     // Spam Protection: Individual Cooldown
     const now = Date.now();
     if (user.last_generated_at && (now - user.last_generated_at < CONFIG.USER_GENERATION_COOLDOWN_MS)) {
@@ -299,7 +296,7 @@ app.post('/api/generate-guidance', async (c) => {
             created_at: Date.now()
         }
         saveGuidance(waitGuidance)
-        return c.redirect('/dashboard')
+        return
     }
 
     // Broad Protection: Global Daily Limit
@@ -313,7 +310,7 @@ app.post('/api/generate-guidance', async (c) => {
             created_at: Date.now()
         }
         saveGuidance(limitGuidance)
-        return c.redirect('/dashboard')
+        return
     }
 
     const profile = getProfileAt(user.id)
@@ -333,6 +330,12 @@ app.post('/api/generate-guidance', async (c) => {
         created_at: Date.now()
     }
     saveGuidance(guidance)
+}
+
+app.post('/api/generate-guidance', async (c) => {
+    const user = c.get('user')
+    if (!user) return c.redirect('/')
+    await generateAndSaveGuidance(user)
     return c.redirect('/dashboard')
 })
 

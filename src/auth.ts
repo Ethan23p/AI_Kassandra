@@ -1,8 +1,9 @@
 import { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
 import { v4 as uuidv4 } from 'uuid';
-import { User, UserSchema } from './types';
+import { User } from './types';
 import { getUserAt, getUserByEmail, saveUser } from './db';
+import { buildNewUser } from './user';
 
 const COOKIE_NAME = 'kassandra_session';
 
@@ -27,14 +28,7 @@ export const createSession = (c: Context, email: string | null = null): User => 
     }
 
     const sessionToken = uuidv4();
-    const newUser = UserSchema.parse({
-        id: uuidv4(),
-        email: email,
-        playtest_cookie: sessionToken,
-        status: email ? 'registeredOnly' : 'ephemeral',
-        created_at: Date.now(),
-        last_interacted_at: Date.now(),
-    });
+    const newUser = buildNewUser({ email, playtest_cookie: sessionToken });
 
     saveUser(newUser);
     setCookie(c, COOKIE_NAME, sessionToken, {

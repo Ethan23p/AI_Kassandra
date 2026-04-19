@@ -9,9 +9,7 @@ export const COPY = {
         footer_copyright: "© 2026 AI Kassandra",
         clear_identity: "Clear Identity",
         clear_identity_confirm: "Clear your personality profile and start over?",
-        anonymous_user: "Anonymous",
-        footer_debug_input_placeholder: "Ask Kassandra directly...",
-        footer_debug_btn: "Ask"
+        anonymous_user: "Anonymous"
     },
     landing: {
         title: "The mirror you cannot break.",

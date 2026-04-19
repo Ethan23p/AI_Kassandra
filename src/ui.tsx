@@ -4,7 +4,6 @@ import { jsx } from 'hono/jsx'
 import { html } from 'hono/html'
 import { User, UserInteraction } from './types'
 import { COPY } from './data/copy'
-import { CONFIG } from './config'
 import { questionsData } from './data/questions'
 
 export const Layout = (props: { children: any; user?: User | null }) => {
@@ -105,19 +104,6 @@ export const Layout = (props: { children: any; user?: User | null }) => {
                 </main>
                 <footer>
                     <span style="font-size: 0.8rem; opacity: 0.5;">{COPY.layout.footer_copyright}</span>
-
-                    {/* Debug Input */}
-                    {CONFIG.DEBUG_MODE && (
-                        <form hx-post="/api/debug/prompt" hx-target="main" style="display: flex; gap: 0.5rem; opacity: 0.5;">
-                            <input
-                                type="text"
-                                name="prompt"
-                                placeholder={COPY.layout.footer_debug_input_placeholder}
-                                style="background: transparent; border: none; border-bottom: 1px solid #f5f5dc; color: #f5f5dc; padding: 0.2rem; font-size: 0.8rem; width: 200px;"
-                            />
-                            <button type="submit" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.2rem 0.6rem; margin: 0; border: none;">{COPY.layout.footer_debug_btn}</button>
-                        </form>
-                    )}
 
                     <button
                         class="btn btn-outline"

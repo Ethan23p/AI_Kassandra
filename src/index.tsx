@@ -7,7 +7,7 @@ import { saveUser, getProfileAt, saveProfile, saveGuidance, getGuidancesAt, getU
 import { setCookie } from 'hono/cookie'
 import { User, PersonalityProfile, Guidance, AssessmentAnswerSchema, RegisterSchema, Question, QuestionSchema, UserInteraction } from './types'
 import { updateProfile, createNeutralProfile, shiftLastGeneratedForAdvance } from './user'
-import { generateAIGuidance, generateRawResponse } from './ai'
+import { generateAIGuidance } from './ai'
 import { CONFIG } from './config'
 import { questionsData } from './data/questions'
 import { COPY } from './data/copy'
@@ -348,21 +348,6 @@ app.post('/api/advance-time', async (c) => {
     user.last_generated_at = shiftLastGeneratedForAdvance(Date.now(), CONFIG.ADVANCE_TIME_DELTA_MS)
     await generateAndSaveGuidance(user)
     return c.redirect('/dashboard')
-})
-
-app.post('/api/debug/prompt', zValidator('form', z.object({ prompt: z.string() })), async (c) => {
-    const { prompt } = c.req.valid('form')
-    const response = await generateRawResponse(prompt)
-
-    return c.html(
-        <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <h2 style="opacity: 0.6; font-size: 1.2rem; margin-bottom: 3rem;">Debug Response</h2>
-            <div style="background: rgba(245, 245, 220, 0.05); padding: 3rem; border-radius: 8px; max-width: 600px; border: 1px solid rgba(245, 245, 220, 0.1);">
-                <p style="font-size: 1.5rem; font-style: italic; line-height: 1.4;">"{response}"</p>
-            </div>
-            <a href="/" class="btn btn-outline" style="margin-top: 2rem;">Back</a>
-        </div>
-    )
 })
 
 export default app

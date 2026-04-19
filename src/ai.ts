@@ -52,32 +52,3 @@ export async function generateAIGuidance(profile: PersonalityProfile): Promise<s
         return "The stars are silent today. Reflect on the space between your thoughts.";
     }
 }
-
-/**
- * Generates a raw response from the AI using a custom user prompt.
- * Keeps the system instruction to maintain persona.
- */
-export async function generateRawResponse(userPrompt: string): Promise<string> {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        logger.warn("GEMINI_API_KEY is missing. Using fallback.");
-        return "System offline.";
-    }
-
-    const client = new GoogleGenAI({ apiKey });
-
-    try {
-        const response = await client.models.generateContent({
-            model: "gemini-flash-latest",
-            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            config: {
-                systemInstruction: getPersona().system_instruction
-            }
-        });
-
-        return response.text || "Empty response.";
-    } catch (error) {
-        logger.error("AI Raw Generation Failed:", error);
-        return "Error generating response.";
-    }
-}

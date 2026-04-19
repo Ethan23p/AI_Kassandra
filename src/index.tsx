@@ -6,7 +6,7 @@ import { getSessionUser, createSession, clearSession } from './auth'
 import { saveUser, getProfileAt, saveProfile, saveGuidance, getGuidancesAt, getUserByEmail, getTotalGuidanceCountSince, saveInteraction, getInteractionsAt } from './db'
 import { setCookie } from 'hono/cookie'
 import { User, PersonalityProfile, Guidance, AssessmentAnswerSchema, RegisterSchema, Question, QuestionSchema, UserInteraction } from './types'
-import { updateProfile, createNeutralProfile } from './user'
+import { updateProfile, createNeutralProfile, shiftLastGeneratedForAdvance } from './user'
 import { generateAIGuidance, generateRawResponse } from './ai'
 import { CONFIG } from './config'
 import { questionsData } from './data/questions'
@@ -335,6 +335,18 @@ async function generateAndSaveGuidance(user: User): Promise<void> {
 app.post('/api/generate-guidance', async (c) => {
     const user = c.get('user')
     if (!user) return c.redirect('/')
+    await generateAndSaveGuidance(user)
+    return c.redirect('/dashboard')
+})
+
+app.post('/api/advance-time', async (c) => {
+    const user = c.get('user')
+    if (!user) return c.redirect('/')
+    if (!user.tags.includes('playtester')) {
+        return c.text('Forbidden: playtester tag required', 403)
+    }
+    user.last_generated_at = shiftLastGeneratedForAdvance(Date.now(), CONFIG.ADVANCE_TIME_DELTA_MS)
+    saveUser(user)
     await generateAndSaveGuidance(user)
     return c.redirect('/dashboard')
 })

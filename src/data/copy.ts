@@ -33,7 +33,8 @@ export const COPY = {
     },
     dashboard: {
         insight_header: "Your Daily Insight",
-        generate_btn: "Generate New Insight",
+        advance_time_btn: "Advance Time ↻",
+        advance_time_hint: "Playtest-only: simulates 24 hours passing.",
         profile_btn: "View Profile",
         back_btn: "Back to Dashboard"
     },

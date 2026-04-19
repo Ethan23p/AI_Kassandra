@@ -218,9 +218,20 @@ export const DashboardPage = (props: { guidance: any; user: User }) => {
                 </p>
             </div>
             <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-                <button class="btn" hx-post="/api/generate-guidance" hx-target="body">{COPY.dashboard.generate_btn}</button>
                 <a href="/profile" class="btn btn-outline" style="margin-top: 2rem;">{COPY.dashboard.profile_btn}</a>
             </div>
+            {props.user.tags.includes('playtester') && (
+                <button
+                    class="btn"
+                    hx-post="/api/advance-time"
+                    hx-target="body"
+                    style="position: fixed; bottom: 2rem; right: 2rem; margin-top: 0; z-index: 10;"
+                    title={COPY.dashboard.advance_time_hint}
+                    aria-label={COPY.dashboard.advance_time_hint}
+                >
+                    {COPY.dashboard.advance_time_btn}
+                </button>
+            )}
         </div>
     )
 }

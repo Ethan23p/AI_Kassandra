@@ -346,7 +346,6 @@ app.post('/api/advance-time', async (c) => {
         return c.text('Forbidden: playtester tag required', 403)
     }
     user.last_generated_at = shiftLastGeneratedForAdvance(Date.now(), CONFIG.ADVANCE_TIME_DELTA_MS)
-    saveUser(user)
     await generateAndSaveGuidance(user)
     return c.redirect('/dashboard')
 })

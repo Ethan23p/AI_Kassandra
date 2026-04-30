@@ -35,3 +35,13 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Git worktrees (created by subagent-driven-development skill)
 .worktrees
+
+# Databases (committed accidentally during early prototype; covered going forward)
+*.sqlite
+*.sqlite3
+*.db
+
+# Runtime artifacts that shouldn't be in version control
+cookies.txt
+server.log
+*.log
